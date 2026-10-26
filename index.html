@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box}body{margin:0;font:16px/1.45 -apple-system,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC",sans-serif;background:#f4f6f8;color:#1d2731}
+header{background:#0b5d4b;color:#fff;padding:16px}header h1{margin:0;font-size:20px}header p{margin:4px 0 0;opacity:.85;font-size:14px}
+main{max-width:760px;margin:0 auto;padding:12px}.card{background:#fff;border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+h2{font-size:17px;margin:0 0 12px;color:#0b5d4b}h3{font-size:15px;margin:0 0 8px}
+label{display:block;font-size:14px;font-weight:600;margin:10px 0 4px}small{color:#5b6670;font-weight:400}
+input,select,textarea{width:100%;padding:11px;border:1px solid #c5ccd3;border-radius:8px;font:inherit;background:#fff}
+input[readonly]{background:#eef2f4;color:#333}.row{display:grid;grid-template-columns:1fr;gap:0 12px}@media(min-width:600px){.row{grid-template-columns:1fr 1fr}}
+.seg{display:flex;gap:8px}.seg label{flex:1;margin:0;font-weight:500;border:1px solid #c5ccd3;border-radius:8px;padding:10px;text-align:center;cursor:pointer}
+.seg input{display:none}.seg input:checked+span{color:#0b5d4b;font-weight:700}.seg label:has(input:checked){border-color:#0b5d4b;background:#e6f2ef}
+.member{border:1px solid #dfe5ea;border-radius:10px;padding:12px;margin:10px 0}.badge{display:inline-block;background:#e6f2ef;color:#0b5d4b;border-radius:20px;padding:4px 12px;font-weight:700}
+.hide{display:none!important}.note{background:#fff8e1;border-left:4px solid #f2b705;padding:10px;border-radius:6px;font-size:14px}
+.err{background:#ffebee;border-left:4px solid #d32f2f;padding:10px;border-radius:6px}.ok{background:#e8f5e9;border-left:4px solid #2e7d32;padding:10px;border-radius:6px}
+.bar{position:sticky;bottom:0;background:#fff;padding:10px 12px;display:flex;gap:10px;box-shadow:0 -2px 6px rgba(0,0,0,.08)}
+button{flex:1;padding:14px;border:0;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}.b1{background:#e6f2ef;color:#0b5d4b}.b2{background:#0b5d4b;color:#fff}button:disabled{opacity:.5}
+.row>div,.f{min-width:0;display:flex;flex-direction:column}.row>div>label,.f>label{min-height:2.9em;display:flex;align-items:flex-end}@media(max-width:599px){.row>div>label,.f>label{min-height:0}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}.modal .box{background:#fff;border-radius:14px;max-width:440px;width:100%;padding:22px;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.modal .tick{font-size:44px;color:#2e7d32}.modal h2{font-size:20px;color:#2e7d32;margin:6px 0 10px}.modal button{flex:none;width:100%;margin-top:14px;background:#0b5d4b;color:#fff}
+#status{font-size:13px;color:#5b6670;text-align:center;margin:6px}
+</style></head><body>
+<header><h1>Yoman Asia 僱主資料表</h1><p>Employer Information / 請核對及填寫以下資料</p></header>
+<!-- BUILD t62u-1 static -->
+<main id="app"><div class="card" id="loading">Loading… 載入中…</div></main>
+<script>
+var EXEC = 'https://script.google.com/macros/s/AKfycbyziYjmrf1uyo-VpodhqNQrST3chUxMTsY3yGthdw4BAAL3qZxcNQ6zo4uQwA9R-Llu/exec'; // t62u static build: Intake V2 /exec (cookie-less)
+var TOKEN = (function () { var q = new URLSearchParams(location.search).get('t') || new URLSearchParams(location.hash.slice(1)).get('t') || ''; return /^[A-Za-z0-9_-]{32,128}$/.test(q) ? q : ''; })();
+var S = { pre: null, lists: null, members: [], helpers: [], dirty: false };
+function $(id) { return document.getElementById(id); }
+function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+function opts(list, val, ph) { return '<option value="">' + (ph || 'Select / 請選擇') + '</option>' + list.map(function (o) { return '<option' + (o === val ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join(''); }
+function inp(id, label, val, extra) { return '<div class="f"><label for="' + id + '">' + label + '</label><input id="' + id + '" value="' + esc(val) + '" ' + (extra || '') + '></div>'; }
+function yn(name, label) { return '<label>' + label + '</label><div class="seg"><label><input type="radio" name="' + name + '" value="No"><span>No / 否</span></label><label><input type="radio" name="' + name + '" value="Yes"><span>Yes / 是</span></label></div>'; }
+function radio(name) { var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value : ''; }
+function setRadio(name, v) { var r = document.querySelector('input[name="' + name + '"][value="' + v + '"]'); if (r) r.checked = true; }
+function v(id) { var e = $(id); return e ? e.value.trim() : ''; }
+function fail(msg) { $('app').innerHTML = '<div class="card err">' + msg + '</div>'; }
+var API = function (fn, args, ok, bad) { // t62u: fetch instead of google.script.run (works signed-out, multi-account, in-app browsers)
+  bad = bad || function (e) { status('Error / 錯誤: ' + (e && e.message || e), true); };
+  var act = { apiLoad: 'load', apiSaveDraft: 'draft', apiSubmit: 'submit' }[fn];
+  fetch(EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ t: args[0], action: act, data: args[1] }), redirect: 'follow' })
+    .then(function (r) { return r.json(); }).then(function (j) { if (j && j.ok) ok(j.data); else bad(new Error(j && j.error || 'ERROR')); })
+    .catch(function (e) { bad(new Error('Network error – please retry / 網絡錯誤，請重試')); });
+};
+
+function start() {
+  if (!TOKEN) return fail('This link is incomplete. Please use the link sent by Yoman Asia.<br>連結不完整，請使用 Yoman Asia 發送的連結。');
+  API('apiLoad', [TOKEN], render, function (e) {
+    var m = String(e && e.message || e);
+    fail(/EXPIRED/.test(m) ? 'This link has expired. Please contact Yoman Asia for a new link.<br>連結已過期，請聯絡 Yoman Asia。' :
+      /REVOKED/.test(m) ? 'This link is no longer active. Please contact Yoman Asia.<br>此連結已停用，請聯絡 Yoman Asia。' :
+      'This link is not valid. Please contact Yoman Asia.<br>連結無效，請聯絡 Yoman Asia。');
+  });
+}
+function render(res) {
+  var p = res.prefill, L = res.lists, e = p.employer; S.pre = p; S.lists = L;
+  var purposeZh = { 'New Hire': '首次聘用', 'Replacement': '替換', 'Additional Hiring': '加聘' }[p.hiringPurpose];
+  var h = '';
+  h += '<div class="card"><h2>個案資料 / Case Information</h2><div class="row">' + inp('caseNo', 'Case No. / 個案編號', p.caseNo, 'readonly') +
+    inp('helperName', 'Selected Helper / 已選姐姐', p.helperName, 'readonly') + inp('salary', 'Agreed Monthly Salary (HKD) / 協議每月工資', p.salary, 'readonly') +
+    '<div><label>Hiring Purpose / 申請類型</label><div style="padding:8px 0"><span class="badge" id="purposeBadge">' + (p.hiringPurpose ? esc(p.hiringPurpose + ' / ' + purposeZh) : '—') + '</span></div></div></div>' +
+    '<p class="note">Fields already filled are from Yoman’s records. If anything is wrong, correct it – Yoman staff will review every change.<br>已填資料來自 Yoman 紀錄；如有錯誤請更正，職員會逐項核對。</p></div>';
+  if (!p.hiringPurpose) { $('app').innerHTML = h + '<div class="card err" id="noPurpose">Your application type has not been confirmed yet. Please contact Yoman Asia before continuing.<br>你的申請類型尚未確認，請先聯絡 Yoman Asia。</div>'; return; }
+  h += '<div class="card"><h2>僱主資料 / Employer Information</h2><div class="row">' + inp('e_nameEn', 'Name (English) / 英文姓名', e.nameEn) + inp('e_nameZh', 'Name (Chinese) / 中文姓名', e.nameZh) +
+    inp('e_mobile', 'Mobile / 手提電話', e.mobile, 'inputmode="tel"') + inp('e_email', 'Email / 電郵', e.email, 'type="email"') +
+    inp('e_hkid', 'HKID / 香港身份證號碼', e.hkid, 'placeholder="A123456(7)" autocomplete="off"') + inp('e_dob', 'Date of Birth / 出生日期', e.dob, 'type="date"') +
+    inp('e_nationality', 'Nationality / 國籍', e.nationality) + '<div><label for="e_marital">Marital Status / 婚姻狀況</label><select id="e_marital">' + opts(L.MARITAL, e.marital) + '</select></div>' +
+    inp('e_occupation', 'Occupation / 職業', e.occupation) + '</div><label for="e_address">Residential Address (English) / 住宅地址（英文）</label><textarea id="e_address" rows="2">' + esc(e.address) + '</textarea>' +
+    (e.addressZh ? '<small>中文地址（紀錄）: ' + esc(e.addressZh) + '</small>' : '') + '</div>';
+  h += '<div class="card"><h2>住所資料 / Home Information</h2><div class="row"><div><label for="h_housing">Housing Type / 房屋類型</label><select id="h_housing">' + opts(L.HOUSING, p.home.housing) + '</select></div>' +
+    inp('h_size', 'Flat Size (sq.ft.) / 單位面積（平方呎）', p.home.size, 'inputmode="numeric"') + inp('h_bedrooms', 'No. of Bedrooms / 房間數目', p.home.bedrooms, 'inputmode="numeric"') + '</div>' +
+    yn('garden', 'Garden / Rooftop? / 是否有花園或天台？') + '<div id="gardenBox" class="hide">' + inp('h_gardenArea', 'Garden / Rooftop Area (sq.ft.) / 面積（平方呎）', '') + '</div>' +
+    yn('pets', 'Pet Care Required? / 是否需要照顧寵物？') + '<div id="petBox" class="hide row">' + inp('h_petSpecies', 'Species / 寵物種類', '', 'placeholder="e.g. Dog 狗"') + inp('h_petNumber', 'Number / 數目', '', 'inputmode="numeric"') + '</div>' +
+    yn('cars', 'Car Washing Required? / 是否需要洗車？') + '<div id="carBox" class="hide">' + inp('h_carCount', 'No. of Cars / 車輛數目', '', 'inputmode="numeric"') + '</div>' +
+    yn('cctv', 'CCTV Installed? / 住所是否設有閉路電視？') + '</div>';
+  h += '<div class="card"><h2>家庭成員 / Household Members</h2><label for="hhCount">Total number of people living at this address, including you / 居住於此地址的總人數（包括你本人）</label>' +
+    '<input id="hhCount" type="number" min="1" max="15" inputmode="numeric" value="1"><div id="members"></div></div>';
+  h += '<div class="card"><h2>姐姐住宿安排 / Helper Accommodation</h2><label for="a_type">Accommodation / 住宿安排</label><select id="a_type">' + opts(L.ACCOM, '') + '</select>' +
+    '<div id="a_roomBox" class="hide">' + inp('a_roomSize', 'Approximate room size (sq.ft.) / 房間大約面積（平方呎）', '', 'inputmode="numeric"') + '</div>' +
+    '<div id="a_shareBox" class="hide"><label for="a_shareWith">Shares room with / 與誰同房</label><select id="a_shareWith"></select></div>' +
+    '<div id="a_otherBox" class="hide"><label for="a_other">Please describe / 請說明</label><textarea id="a_other" rows="2"></textarea></div></div>';
+  if (p.hiringPurpose === 'Replacement') h += '<div class="card" id="replCard"><h2>被替換姐姐 / Current Helper Being Replaced</h2><p class="note">This is your CURRENT helper, not the newly selected helper.<br>此為現時受僱的姐姐，並非新選的姐姐。</p><div class="row">' +
+    inp('r_name', 'Name / 姓名', p.replacedHelper) + inp('r_hkid', 'HKID / 香港身份證號碼', '', 'autocomplete="off"') + inp('r_lwd', 'Last Working Day / 最後工作日', '', 'type="date"') + '</div></div>';
+  if (p.hiringPurpose === 'Additional Hiring') h += '<div class="card" id="addCard"><h2>現有姐姐 / Existing Helpers</h2><label for="ehCount">How many helpers do you currently employ? / 現時聘用姐姐數目</label>' +
+    '<input id="ehCount" type="number" min="1" max="6" inputmode="numeric" value="1"><div id="helpers"></div></div>';
+  h += '<div class="card"><h2>文件提示及確認 / Documents & Declaration</h2><p class="note">Yoman staff may ask you for copies of your HKID, address proof and income proof. You may provide them later.<br>Yoman 職員或會向你索取身份證、地址證明及入息證明副本，可稍後提供。</p>' +
+    '<label style="display:flex;gap:10px;font-weight:500"><input type="checkbox" id="decl" style="width:22px;height:22px"><span>' + esc(L.DECLARATION) + '</span></label></div>';
+  h += '<div id="msg"></div><div id="status"></div>';
+  $('app').innerHTML = h;
+  document.body.insertAdjacentHTML('beforeend', '<div class="bar"><button class="b1" id="btnSave" type="button">Save draft / 儲存草稿</button><button class="b2" id="btnSubmit" type="button">Submit / 提交</button></div>');
+  // initial member data
+  S.members = [{}];
+  if (p.spouse && p.spouse.name) S.members[1] = { name: p.spouse.name, hkid: p.spouse.hkid, relationship: '' };
+  S.helpers = [];
+  if (res.draft) applyDraft(res.draft); else if (S.members.length > 1) $('hhCount').value = S.members.length;
+  wire(); renderMembers(); renderHelpers(); toggles();
+  if (res.lastStatus === 'Submitted') lockSubmitted(res.lastVersion);
+  if (res.lastStatus) status('Resumed your ' + (res.lastStatus === 'Draft' ? 'saved draft' : 'last submission') + ' (version ' + res.lastVersion + '). 已載入你上次的' + (res.lastStatus === 'Draft' ? '草稿' : '提交') + '。');
+}
+function applyDraft(d) {
+  var e = d.employer || {}, set = function (id, val) { if ($(id) && val != null) $(id).value = val; };
+  ['nameEn', 'nameZh', 'mobile', 'email', 'hkid', 'dob', 'nationality', 'marital', 'occupation', 'address'].forEach(function (k) { set('e_' + k, e[k]); });
+  var h = d.home || {}; ['housing', 'size', 'bedrooms', 'gardenArea', 'petSpecies', 'petNumber', 'carCount'].forEach(function (k) { set('h_' + k, h[k]); });
+  ['garden', 'pets', 'cars', 'cctv'].forEach(function (k) { if (h[k]) setRadio(k, h[k]); });
+  S.members = (d.members || [{}]).map(function (m) { return m || {}; }); set('hhCount', d.householdCount || 1);
+  var a = d.accommodation || {}; set('a_type', a.type); set('a_roomSize', a.roomSize); set('a_other', a.other); S.shareWith = a.shareWith;
+  if (d.replacement) { set('r_name', d.replacement.name); set('r_hkid', d.replacement.hkid); set('r_lwd', d.replacement.lastWorkingDay); }
+  S.helpers = (d.existingHelpers || []).map(function (x) { return x || {}; }); if ($('ehCount') && d.existingCount) set('ehCount', d.existingCount);
+  if ($('decl')) $('decl').checked = !!d.declaration;
+}
+function count(id, max) { var n = parseInt(v(id), 10); return isNaN(n) ? 1 : Math.max(1, Math.min(max, n)); }
+function syncMembers() { // copy visible member inputs into S.members (kept even when count shrinks)
+  document.querySelectorAll('#members .member[data-i]').forEach(function (c) {
+    var i = +c.getAttribute('data-i'); if (!i) return;
+    S.members[i] = { name: v('m' + i + '_name'), relationship: v('m' + i + '_rel'), dob: v('m' + i + '_dob'), hkid: v('m' + i + '_hkid') };
+  });
+}
+function renderMembers() {
+  syncMembers(); var n = count('hhCount', 15), L = S.lists, h = '';
+  h += '<div class="member" data-i="0"><h3>Member 1 / 家庭成員 1 – Employer (you) / 僱主（本人）</h3><small id="m0_sum"></small></div>';
+  for (var i = 1; i < n; i++) {
+    var m = S.members[i] || {};
+    h += '<div class="member" data-i="' + i + '"><h3>Member ' + (i + 1) + ' / 家庭成員 ' + (i + 1) + '</h3><div class="row">' + inp('m' + i + '_name', 'Full Name / 姓名', m.name) +
+      '<div><label for="m' + i + '_rel">Relationship to Employer / 與僱主關係</label><select id="m' + i + '_rel">' + opts(L.RELATIONSHIPS, m.relationship) + '</select></div>' +
+      inp('m' + i + '_dob', 'Date of Birth / 出生日期', m.dob, 'type="date"') + inp('m' + i + '_hkid', 'HKID (if applicable) / 香港身份證號碼（如適用）', m.hkid, 'autocomplete="off"') + '</div></div>';
+  }
+  $('members').innerHTML = h; updateM0(); renderShare();
+}
+function updateM0() { var s = $('m0_sum'); if (s) s.textContent = [v('e_nameEn'), v('e_hkid'), v('e_dob')].filter(Boolean).join(' · ') || '(from Employer Information above / 取自以上僱主資料)'; }
+function renderShare() {
+  var sel = $('a_shareWith'); if (!sel) return; var cur = sel.value || S.shareWith || '', n = count('hhCount', 15), h = '<option value="">Select member / 選擇成員</option>';
+  for (var i = 1; i <= n; i++) { var nm = i === 1 ? (v('e_nameEn') || 'Employer') + ' (Employer / 僱主)' : (v('m' + (i - 1) + '_name') || 'Member ' + i + ' / 成員 ' + i); h += '<option value="' + i + '"' + (String(i) === String(cur) ? ' selected' : '') + '>' + i + '. ' + esc(nm) + '</option>'; }
+  sel.innerHTML = h; S.shareWith = sel.value;
+}
+function syncHelpers() { document.querySelectorAll('#helpers .member').forEach(function (c) { var i = +c.getAttribute('data-i'); S.helpers[i] = { name: v('x' + i + '_name'), hkid: v('x' + i + '_hkid'), expiry: v('x' + i + '_exp'), status: v('x' + i + '_st') }; }); }
+function renderHelpers() {
+  if (!$('helpers')) return; syncHelpers(); var n = count('ehCount', 6), h = '';
+  for (var i = 0; i < n; i++) { var x = S.helpers[i] || {};
+    h += '<div class="member" data-i="' + i + '"><h3>Existing Helper ' + (i + 1) + ' / 現有姐姐 ' + (i + 1) + '</h3><div class="row">' + inp('x' + i + '_name', 'Name / 姓名', x.name) + inp('x' + i + '_hkid', 'HKID / 香港身份證號碼', x.hkid, 'autocomplete="off"') +
+      inp('x' + i + '_exp', 'Contract Expiry Date / 合約到期日', x.expiry, 'type="date"') + '<div><label for="x' + i + '_st">Contract Status / 合約狀況</label><select id="x' + i + '_st">' + opts(S.lists.HELPER_STATUS, x.status) + '</select></div></div></div>'; }
+  $('helpers').innerHTML = h;
+}
+function toggles() {
+  $('gardenBox').classList.toggle('hide', radio('garden') !== 'Yes'); $('petBox').classList.toggle('hide', radio('pets') !== 'Yes'); $('carBox').classList.toggle('hide', radio('cars') !== 'Yes');
+  var t = v('a_type'), A = S.lists.ACCOM;
+  $('a_roomBox').classList.toggle('hide', t !== A[0]); $('a_shareBox').classList.toggle('hide', t !== A[1]); $('a_otherBox').classList.toggle('hide', t !== A[2]);
+}
+function wire() {
+  $('hhCount').addEventListener('input', renderMembers); if ($('ehCount')) $('ehCount').addEventListener('input', renderHelpers);
+  document.addEventListener('change', function (ev) { S.dirty = true; if (/^(garden|pets|cars|cctv)$/.test(ev.target.name) || ev.target.id === 'a_type') toggles(); });
+  document.addEventListener('input', function (ev) { S.dirty = true; if (/^m\d+_name$|^e_nameEn$/.test(ev.target.id)) renderShare(); if (/^e_(nameEn|hkid|dob)$/.test(ev.target.id)) updateM0(); });
+  $('btnSave').addEventListener('click', function () { send('apiSaveDraft'); });
+  $('btnSubmit').addEventListener('click', function () {
+    var miss = check(); if (miss.length) { $('msg').innerHTML = '<div class="card err">Please complete / 請填寫:<br>• ' + miss.map(esc).join('<br>• ') + '</div>'; if ($('msg').scrollIntoView) $('msg').scrollIntoView(); return; }
+    send('apiSubmit');
+  });
+}
+function collect() {
+  syncMembers(); syncHelpers(); var n = count('hhCount', 15), A = S.lists.ACCOM, t = v('a_type');
+  var d = { employer: {}, home: {}, householdCount: n, members: S.members.slice(0, n), accommodation: { type: t }, declaration: $('decl').checked };
+  ['nameEn', 'nameZh', 'mobile', 'email', 'hkid', 'dob', 'nationality', 'marital', 'occupation', 'address'].forEach(function (k) { d.employer[k] = v('e_' + k); });
+  d.home = { housing: v('h_housing'), size: v('h_size'), bedrooms: v('h_bedrooms'), garden: radio('garden'), pets: radio('pets'), cars: radio('cars'), cctv: radio('cctv') };
+  if (d.home.garden === 'Yes') d.home.gardenArea = v('h_gardenArea'); if (d.home.pets === 'Yes') { d.home.petSpecies = v('h_petSpecies'); d.home.petNumber = v('h_petNumber'); } if (d.home.cars === 'Yes') d.home.carCount = v('h_carCount');
+  if (t === A[0]) d.accommodation.roomSize = v('a_roomSize'); if (t === A[1]) d.accommodation.shareWith = v('a_shareWith'); if (t === A[2]) d.accommodation.other = v('a_other');
+  if (S.pre.hiringPurpose === 'Replacement') d.replacement = { name: v('r_name'), hkid: v('r_hkid'), lastWorkingDay: v('r_lwd') };
+  if (S.pre.hiringPurpose === 'Additional Hiring') { d.existingCount = count('ehCount', 6); d.existingHelpers = S.helpers.slice(0, d.existingCount); }
+  d._allMembers = S.members; d._allHelpers = S.helpers; // keeps data hidden by a temporary count reduction
+  return d;
+}
+function check() {
+  var d = collect(), m = [];
+  if (!d.employer.nameEn) m.push('Employer name / 僱主姓名'); if (!d.employer.mobile) m.push('Mobile / 手提電話'); if (!d.employer.hkid) m.push('Employer HKID / 僱主身份證');
+  if (!d.home.housing) m.push('Housing type / 房屋類型');
+  ['garden', 'pets', 'cars', 'cctv'].forEach(function (k) { if (!d.home[k]) m.push({ garden: 'Garden / Rooftop 花園或天台', pets: 'Pet care 寵物', cars: 'Car washing 洗車', cctv: 'CCTV 閉路電視' }[k]); });
+  d.members.slice(1).forEach(function (x, i) { if (!x.name || !x.relationship) m.push('Member ' + (i + 2) + ' name & relationship / 成員 ' + (i + 2) + ' 姓名及關係'); });
+  if (!d.accommodation.type) m.push('Helper accommodation / 姐姐住宿安排'); else if (d.accommodation.type === S.lists.ACCOM[1] && !d.accommodation.shareWith) m.push('Shares room with / 與誰同房');
+  if (d.replacement && !d.replacement.lastWorkingDay) m.push('Last working day / 最後工作日');
+  (d.existingHelpers || []).forEach(function (x, i) { if (!x.name) m.push('Existing helper ' + (i + 1) + ' name / 現有姐姐 ' + (i + 1) + ' 姓名'); });
+  if (!d.declaration) m.push('Declaration / 聲明');
+  return m;
+}
+function busy(b) { $('btnSave').disabled = b || !!S.locked; $('btnSubmit').disabled = b || !!S.locked; }
+function lockSubmitted(version, warnings) {
+  S.locked = true; busy(false);
+  $('btnSubmit').textContent = 'Submitted ✓ / 已提交'; $('btnSave').classList.add('hide');
+  if (!$('btnEdit')) { var b = document.createElement('button'); b.type = 'button'; b.id = 'btnEdit'; b.className = 'b1'; b.textContent = 'Edit & resubmit / 修改並重新提交'; $('btnSubmit').parentNode.insertBefore(b, $('btnSubmit'));
+    b.addEventListener('click', function () {
+      if (!window.confirm('Your form has already been submitted. Edit it and submit a new version? / 你已提交表格。是否修改並提交新版本？')) return;
+      S.locked = false; b.parentNode.removeChild(b); $('btnSave').classList.remove('hide'); $('btnSubmit').textContent = 'Submit / 提交'; busy(false);
+      $('msg').innerHTML = '<div class="card note">Editing a new version – press Submit when done. / 正在修改新版本，完成後請按提交。</div>';
+    }); }
+  $('msg').innerHTML = '<div class="card ok"><b>Submitted Successfully / 資料已成功提交</b> – Case No. / 個案編號 ' + esc(S.pre.caseNo) + (version ? ' (v' + esc(version) + ')' : '') + '. Yoman staff will review it. / Yoman 職員會核對。' + (warnings && warnings.length ? '<br><small>Please double-check / 請再核對: ' + warnings.map(esc).join('; ') + '</small>' : '') + '</div>';
+}
+function status(t, bad) { var s = $('status'); if (s) { s.textContent = t; s.style.color = bad ? '#d32f2f' : ''; } }
+function successModal(r) {
+  var m = document.createElement('div'); m.className = 'modal'; m.id = 'successModal'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+  m.innerHTML = '<div class="box"><div class="tick">&#10004;</div><h2>Submitted Successfully / 資料已成功提交</h2><p>Case No. / 個案編號: <b>' + esc(S.pre.caseNo) + '</b>' + (r.version ? ' (v' + esc(r.version) + ')' : '') +
+    '</p><p>Yoman staff will review your information and contact you if anything needs to be confirmed.<br>Yoman 職員會核對你的資料，如有需要會再聯絡你。</p><button type="button" id="modalClose">OK / 確定</button></div>';
+  document.body.appendChild(m); $('modalClose').addEventListener('click', function () { m.parentNode.removeChild(m); }); $('modalClose').focus();
+}
+function send(fn) {
+  if (S.sending || S.locked) return; S.sending = true;
+  var d = collect(); d.members = d._allMembers; d.existingHelpers = d._allHelpers; delete d._allMembers; delete d._allHelpers; // server trims to the counts
+  busy(true); status('Saving… 儲存中…');
+  API(fn, [TOKEN, d], function (r) { S.sending = false; busy(false);
+    if (!r || r.ok !== true) { status('Could not save / 未能儲存 – please try again / 請再試', true); return; }
+    S.dirty = false;
+    if (r.status === 'Submitted') { lockSubmitted(r.version, r.warnings); successModal(r); status('Submitted ' + new Date().toLocaleTimeString()); return; }
+    var w = r.warnings && r.warnings.length ? '<br><small>Please double-check / 請再核對: ' + r.warnings.map(esc).join('; ') + '</small>' : '';
+    $('msg').innerHTML = '<div class="card ok">' + 'Draft saved. You can continue later with the same link.<br>草稿已儲存，可用同一連結繼續填寫。' + w + '</div>';
+    status('Saved ' + new Date().toLocaleTimeString()); },
+    function (e) { S.sending = false; busy(false); status('Could not save / 未能儲存: ' + (e && e.message || e), true); });
+}
+window.addEventListener('beforeunload', function (e) { if (S.dirty) { e.preventDefault(); e.returnValue = ''; } });
+start();
+</script><footer id="build" style="text-align:center;font-size:11px;color:#8a949c;padding:8px 0 80px">build t28u-2</footer></body></html>
