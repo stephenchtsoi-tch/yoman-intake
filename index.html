@@ -104,7 +104,7 @@ function render(res) {
     '<div id="a_shareBox" class="hide"><label for="a_shareWith">Shares room with / 與誰同房</label><select id="a_shareWith"></select></div>' +
     '<div id="a_otherBox" class="hide"><label for="a_other">Please describe / 請說明</label><textarea id="a_other" rows="2"></textarea></div></div>';
   if (p.hiringPurpose === 'Replacement') h += '<div class="card" id="replCard"><h2>被替換姐姐 / Current Helper Being Replaced</h2><p class="note">This is your CURRENT helper, not the newly selected helper.<br>此為現時受僱的姐姐，並非新選的姐姐。</p><div class="row">' +
-    inp('r_name', 'Name / 姓名', p.replacedHelper) + inp('r_hkid', 'HKID / 香港身份證號碼', '', 'autocomplete="off"') + inp('r_lwd', 'Expected termination date / 預計終止日期', '', 'type="date"') + inp('r_visa', 'Current Visa Expiry (limit of stay) / 現時簽證到期日（逗留期限） <small>approximate OK / 大約日期也可</small>', '', 'type="date"') + '</div></div>';
+    inp('r_name', 'Name / 姓名', p.replacedHelper) + inp('r_hkid', 'HKID / 香港身份證號碼', '', 'autocomplete="off"') + inp('r_lwd', 'Expected termination date / 預計終止日期', '', 'type="date"') + inp('r_visa', 'Current Visa Expiry (limit of stay) / 現時簽證到期日（逗留期限） <small>approximate OK / 大約日期也可 (YYYY-MM or YYYY-MM-DD)</small>', '', 'type="text" inputmode="numeric" maxlength="10" placeholder="e.g. 2027-03" pattern="\\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?"') + '</div></div>';
   if (p.hiringPurpose === 'Additional Hiring') h += '<div class="card" id="addCard"><h2>現有姐姐 / Existing Helpers</h2><label for="ehCount">How many helpers do you currently employ? / 現時聘用姐姐數目</label>' +
     '<input id="ehCount" type="number" min="1" max="6" inputmode="numeric" value="1"><div id="helpers"></div></div>';
   h += '<div class="card"><h2>文件提示及確認 / Documents & Declaration</h2><p class="note">Yoman staff may ask you for copies of your HKID, address proof and income proof. You may provide them later.<br>Yoman 職員或會向你索取身份證、地址證明及入息證明副本，可稍後提供。</p>' +
@@ -205,6 +205,7 @@ function check() {
   ['garden', 'pets', 'cars', 'cctv'].forEach(function (k) { if (!d.home[k]) P({ garden: 'Garden / Rooftop 花園或天台', pets: 'Pet care 寵物', cars: 'Car washing 洗車', cctv: 'CCTV 閉路電視' }[k], 'radio:' + k); });
   d.members.slice(1).forEach(function (x, j) { var i = j + 1; if (!x.name) P('Member ' + (i + 1) + ' name / 成員 ' + (i + 1) + ' 姓名', 'm' + i + '_name'); if (!x.relationship) P('Member ' + (i + 1) + ' relationship / 成員 ' + (i + 1) + ' 關係', 'm' + i + '_rel'); if (!x.dob) P('Member ' + (i + 1) + ' date of birth / 成員 ' + (i + 1) + ' 出生日期' + (yearOnly('m' + i + '_dob') ? ' (year 1900–' + CUR_YEAR + ')' : ''), dobEl('m' + i + '_dob')); });
   if (!d.accommodation.type) P('Helper accommodation / 姐姐住宿安排', 'a_type'); else if (d.accommodation.type === S.lists.ACCOM[1] && !d.accommodation.shareWith) P('Shares room with / 與誰同房', 'a_shareWith');
+  if (d.replacement && d.replacement.visaExpiry && !/^\d{4}-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?$/.test(d.replacement.visaExpiry)) P('Visa expiry format YYYY-MM or YYYY-MM-DD / 簽證到期日格式（年-月 或 年-月-日）', 'r_visa');
   if (d.replacement && !d.replacement.name) P('Replaced helper name / 被替換姐姐姓名', 'r_name'); if (d.replacement && !d.replacement.expectedTerminationDate) P('Expected termination date / 預計終止日期', 'r_lwd');
   (d.existingHelpers || []).forEach(function (x, i) { if (!x.name) P('Existing helper ' + (i + 1) + ' name / 現有姐姐 ' + (i + 1) + ' 姓名', 'x' + i + '_name'); });
   if (!d.declaration) P('Declaration / 聲明', 'decl');
@@ -264,7 +265,7 @@ function send(fn) {
     var w = r.warnings && r.warnings.length ? '<br><small>Please double-check / 請再核對: ' + r.warnings.map(esc).join('; ') + '</small>' : '';
     $('msg').innerHTML = '<div class="card ok">' + 'Draft saved. You can continue later with the same link.<br>草稿已儲存，可用同一連結繼續填寫。' + w + '</div>';
     status('Saved ' + new Date().toLocaleTimeString()); },
-    function (e) { S.sending = false; spinner(false); busy(false); status('Could not save / 未能儲存: ' + (e && e.message || e), true); });
+    function (e) { S.sending = false; spinner(false); busy(false); if (/REPLACED_NAME_REQUIRED/.test(String(e && e.message))) { showMissing([{ t: 'Please enter the name of the helper being replaced / 請填寫被替換姐姐的姓名', id: 'r_name' }]); status('Please enter the name of the helper being replaced / 請填寫被替換姐姐的姓名', true); return; } status('Could not save / 未能儲存: ' + (e && e.message || e), true); });
 }
 window.addEventListener('beforeunload', function (e) { if (S.dirty) { e.preventDefault(); e.returnValue = ''; } });
 start();
