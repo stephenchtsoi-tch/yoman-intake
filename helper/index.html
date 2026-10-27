@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yoman Asia Helper Intake</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:16px/1.45 -apple-system,"Segoe UI",Roboto,"Noto Sans TC","PingFang TC",sans-serif;background:#f4f6f8;color:#1d2731}
+header{background:#0b5d4b;color:#fff;padding:16px}header h1{margin:0;font-size:20px}header p{margin:4px 0 0;opacity:.85;font-size:14px}
+main{max-width:760px;margin:0 auto;padding:12px}.card{background:#fff;border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+h2{font-size:17px;margin:0 0 12px;color:#0b5d4b}
+label{display:block;font-size:14px;font-weight:600;margin:10px 0 4px}small{color:#5b6670;font-weight:400}
+input,select,textarea{width:100%;padding:11px;border:1px solid #c5ccd3;border-radius:8px;font:inherit;background:#fff}
+input[type=checkbox]{width:auto;margin-right:8px}label.chk{display:flex;align-items:flex-start;font-weight:500}
+.row{display:grid;grid-template-columns:1fr;gap:0 12px}@media(min-width:600px){.row{grid-template-columns:1fr 1fr}}
+.member{border:1px solid #dfe5ea;border-radius:10px;padding:12px;margin:10px 0}.badge{display:inline-block;background:#e6f2ef;color:#0b5d4b;border-radius:20px;padding:4px 12px;font-weight:700}
+.hide{display:none!important}.note{background:#fff8e1;border-left:4px solid #f2b705;padding:10px;border-radius:6px;font-size:14px}
+.err{background:#ffebee;border-left:4px solid #d32f2f;padding:10px;border-radius:6px}.ok{background:#e8f5e9;border-left:4px solid #2e7d32;padding:10px;border-radius:6px}
+.bar{position:sticky;bottom:0;background:#fff;padding:10px 12px;display:flex;gap:10px;box-shadow:0 -2px 6px rgba(0,0,0,.08)}
+button{flex:1;padding:14px;border:0;border-radius:10px;font:inherit;font-weight:700;cursor:pointer}.b1{background:#e6f2ef;color:#0b5d4b}.b2{background:#0b5d4b;color:#fff}button:disabled{opacity:.5}
+.lang{display:flex;gap:8px;margin-top:10px}.lang button{flex:none;padding:6px 14px;background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.4)}.lang button.on{background:#fff;color:#0b5d4b}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 12px;margin:0}dt{font-weight:600;color:#5b6670}dd{margin:0}
+#status{font-size:13px;color:#5b6670;text-align:center;margin:6px}
+</style></head><body>
+<header><h1 data-i18n="title">Helper Intake + Job Offer Accept</h1><p data-i18n="banner">Yoman Asia — Helper Intake. Please check details carefully before submit.</p>
+<div class="lang"><button type="button" data-lang="en" class="on">English</button><button type="button" data-lang="tl">Tagalog</button><button type="button" data-lang="id">Bahasa</button></div></header>
+<!-- BUILD t167u helper static -->
+<main>
+<div id="caseLine" class="badge hide"></div>
+<div id="msg" class="card hide"></div>
+<section class="card hide" id="jo">
+  <h2 data-i18n="jo_title">1. Job Offer — please confirm</h2>
+  <dl><dt data-i18n="jo_employer">Employer</dt><dd id="joEmp">—</dd><dt data-i18n="jo_salary">Salary</dt><dd id="joSal">—</dd>
+  <dt data-i18n="jo_hh">Household size</dt><dd id="joHh">—</dd><dt data-i18n="jo_expb">Expecting babies</dt><dd id="joBabies">0</dd>
+  <dt data-i18n="jo_duties">Duties (summary)</dt><dd id="joDuties" style="white-space:pre-wrap">—</dd></dl>
+  <label class="chk"><input type="checkbox" id="joAccept"><span data-i18n="jo_check">I accept this job offer and the salary shown.</span></label>
+  <div class="bar" style="position:static;box-shadow:none;padding:10px 0 0"><button type="button" class="b2" id="btnJo" data-i18n="jo_btn">Accept &amp; continue</button></div>
+</section>
+<form id="form" class="hide" novalidate>
+ <div class="card">
+  <h2 data-i18n="h_details">2. Your details (for ID988A)</h2>
+  <div class="row"><div><label for="f_surname"><span data-i18n="surname">Surname (passport)</span> *</label><input id="f_surname" name="surname" required maxlength="100" autocomplete="off"></div>
+  <div><label for="f_given"><span data-i18n="given">Given names (passport)</span> *</label><input id="f_given" name="givenNames" required maxlength="100" autocomplete="off"></div></div>
+  <div class="row"><div><label for="f_sex" data-i18n="sex">Sex</label><select id="f_sex" name="sex"><option>F</option><option>M</option></select></div>
+  <div><label for="f_dob"><span data-i18n="dob">Date of birth</span> *</label><input id="f_dob" name="dob" type="date" required></div></div>
+  <div class="row"><div><label for="f_pob" data-i18n="pob">Place of birth</label><input id="f_pob" name="placeOfBirth" maxlength="200"></div>
+  <div><label for="f_nat" data-i18n="nat">Nationality</label><input id="f_nat" name="nationality" value="Filipino" maxlength="100"></div></div>
+  <div class="row"><div><label for="f_pass" data-i18n="pass">Passport no.</label><input id="f_pass" name="passportNo" maxlength="50" autocomplete="off"></div>
+  <div><label for="f_pexp" data-i18n="pexp">Passport expiry</label><input id="f_pexp" name="passportExpiry" type="date"></div></div>
+  <label for="f_dom" data-i18n="dom">Home-country address (Brgy / City / Province)</label><textarea id="f_dom" name="domicileAddress" rows="2" maxlength="1000"></textarea>
+  <label for="f_phone" data-i18n="phone">Contact phone</label><input id="f_phone" name="phone" type="tel" maxlength="50">
+  <label for="f_email" data-i18n="email">Email (optional)</label><input id="f_email" name="email" type="email" maxlength="200">
+ </div>
+ <div class="card">
+  <h2 data-i18n="h_em">3. Emergency contact (agency only — not on ID988A)</h2>
+  <div class="row"><div><label for="f_emn" data-i18n="em_name">Name</label><input id="f_emn" name="emergencyName" maxlength="200"></div>
+  <div><label for="f_emr" data-i18n="em_rel">Relationship</label><input id="f_emr" name="emergencyRelationship" maxlength="100"></div></div>
+  <label for="f_emp" data-i18n="em_phone">Phone</label><input id="f_emp" name="emergencyPhone" type="tel" maxlength="50">
+ </div>
+ <div class="card">
+  <h2 data-i18n="h_exp">4. Work experience → ID988A Part 3</h2>
+  <label class="chk"><input type="checkbox" id="noExp" name="noExperience"><span data-i18n="no_exp">No previous domestic-helper experience</span></label>
+  <div id="expBox"></div>
+  <div class="bar" style="position:static;box-shadow:none;padding:6px 0 0"><button type="button" class="b1" id="addExp" data-i18n="add_exp">+ Add experience row</button></div>
+ </div>
+ <div class="card">
+  <h2 data-i18n="h_up">5. Uploads (optional stub)</h2>
+  <label for="f_upp" data-i18n="up_pass">Passport photo</label><input id="f_upp" type="file" name="passportFile" accept="image/*,.pdf">
+  <label for="f_upc" data-i18n="up_ref">Prior employment contract / reference</label><input id="f_upc" type="file" name="contractFile" accept="image/*,.pdf">
+  <p class="note" data-i18n="up_note">Files are named only for now (Drive upload coming soon).</p>
+ </div>
+ <div id="formErr" class="err hide" role="alert"></div>
+ <div class="bar"><button type="submit" class="b2" id="btnSubmit" data-i18n="submit">Submit</button></div>
+</form>
+<p id="status" aria-live="polite"></p>
+</main>
+<script>
+(function () {
+'use strict';
+var PROD_EXEC = 'https://script.google.com/macros/s/AKfycbwtKJkSb1iDglSKefDJvpYlV_VopDAG0jxj-n646ZRqETdvWOvS8jCDPvCCthvVtQGF0w/exec';
+var STAGING_EXEC = ''; // TODO: fill in once Yoman sends the staging /exec URL
+var MAX_BODY = 60000; // bytes, per contract
+var P = new URLSearchParams(location.search), H = new URLSearchParams(location.hash.slice(1));
+var IS_STAGING = (P.get('api') || H.get('api')) === 'staging';
+var EXEC = IS_STAGING ? STAGING_EXEC : PROD_EXEC;
+var TOKEN = (function () { var q = P.get('t') || H.get('t') || ''; return /^[A-Za-z0-9_-]{20,128}$/.test(q) ? q : ''; })();
+
+var I18N = {
+en:{banner:'Yoman Asia — Helper Intake. Please check details carefully before submit.',title:'Helper Intake + Job Offer Accept',jo_title:'1. Job Offer — please confirm',jo_employer:'Employer',jo_salary:'Salary',jo_hh:'Household size',jo_expb:'Expecting babies',jo_duties:'Duties (summary)',jo_check:'I accept this job offer and the salary shown.',jo_btn:'Accept & continue',h_details:'2. Your details (for ID988A)',surname:'Surname (passport)',given:'Given names (passport)',sex:'Sex',dob:'Date of birth',pob:'Place of birth',nat:'Nationality',pass:'Passport no.',pexp:'Passport expiry',dom:'Home-country address (Brgy / City / Province)',phone:'Contact phone',email:'Email (optional)',h_em:'3. Emergency contact (agency only — not on ID988A)',em_name:'Name',em_rel:'Relationship',em_phone:'Phone',h_exp:'4. Work experience → ID988A Part 3',no_exp:'No previous domestic-helper experience',add_exp:'+ Add experience row',h_up:'5. Uploads (optional stub)',up_pass:'Passport photo',up_ref:'Prior employment contract / reference',up_note:'Files are named only for now (Drive upload coming soon).',submit:'Submit',
+ x_emp:'Employer',x_place:'Place / Country',x_from:'From (mm/yy)',x_to:'To (mm/yy)',x_rm:'Remove',case:'Case',
+ s_loading:'Loading…',s_ok:'Please read and accept the job offer.',s_fill:'Fill in your details, then submit.',s_sending:'Submitting… please wait.',tick:'Please tick the box to accept the job offer first.',
+ req:'Please fill in: ',done:'Thank you! Your details were submitted (case {c}, version {v}). You can close this page now.',staging:'TEST MODE (staging server)',
+ e_NO_TOKEN:'This link is incomplete. Please use the full link sent to you by Yoman Asia.',e_NO_STAGING:'Staging server is not configured yet.',
+ e_INVALID:'This link is not valid. Please ask Yoman Asia for a new link.',e_REVOKED:'This link has been cancelled. Please ask Yoman Asia for a new link.',e_CASE_MISMATCH:'This link does not match your case. Please ask Yoman Asia for a new link.',e_BAD_REQUEST:'Something went wrong with the request. Please reload the page and try again.',e_TOO_LARGE:'The form is too long. Please shorten long text (address, duties, experience) and try again.',e_JO_NOT_ACCEPTED:'Please accept the job offer before submitting.',e_MISSING_FIELD:'A required field is missing: ',e_BUSY:'The server is busy. Please wait a moment and press Submit again.',e_REFUSE:'The system is under maintenance. Please contact Yoman Asia.',e_ERROR:'Something went wrong. Please try again later or contact Yoman Asia.',e_NETWORK:'Cannot reach the server. Please check your internet connection and try again.'},
+tl:{banner:'Yoman Asia — Helper Intake. Pakisuri ang detalye bago i-submit.',title:'Helper Intake + Pagtanggap ng Job Offer',jo_title:'1. Job Offer — pakikumpirma',jo_employer:'Employer',jo_salary:'Sahod',jo_hh:'Laki ng sambahayan',jo_expb:'Inaasahang sanggol',jo_duties:'Mga gawain',jo_check:'Tinatanggap ko ang job offer at sahod.',jo_btn:'Tanggapin at magpatuloy',h_details:'2. Iyong detalye (para sa ID988A)',surname:'Apelyido (passport)',given:'Mga pangalan (passport)',sex:'Kasarian',dob:'Petsa ng kapanganakan',pob:'Lugar ng kapanganakan',nat:'Nasyonalidad',pass:'Passport no.',pexp:'Expiry ng passport',dom:'Address sa bayan (Brgy / City / Province)',phone:'Telepono',email:'Email (opsyonal)',h_em:'3. Emergency contact (ahensya lang — wala sa ID988A)',em_name:'Pangalan',em_rel:'Relasyon',em_phone:'Telepono',h_exp:'4. Karanasan sa trabaho → ID988A Part 3',no_exp:'Walang dating karanasan bilang domestic helper',add_exp:'+ Magdagdag ng karanasan',h_up:'5. Uploads (opsyonal)',up_pass:'Larawan ng passport',up_ref:'Dating kontrata / reference',up_note:'Pangalan ng file lang muna (Drive upload sa susunod).',submit:'I-submit',
+ x_emp:'Employer',x_place:'Lugar / Bansa',x_from:'Mula (mm/yy)',x_to:'Hanggang (mm/yy)',x_rm:'Alisin',case:'Kaso',
+ s_loading:'Naglo-load…',s_ok:'Pakibasa at tanggapin ang job offer.',s_fill:'Punan ang iyong detalye, saka i-submit.',s_sending:'Isinusumite… pakihintay.',tick:'Paki-tsek muna ang kahon para tanggapin ang job offer.',
+ req:'Pakipunan: ',done:'Salamat! Naisumite na ang iyong detalye (kaso {c}, bersyon {v}). Maaari mo nang isara ang pahinang ito.',staging:'TEST MODE (staging server)',
+ e_NO_TOKEN:'Kulang ang link na ito. Pakigamit ang buong link na ipinadala ng Yoman Asia.',e_NO_STAGING:'Hindi pa naka-set ang staging server.',
+ e_INVALID:'Hindi valid ang link na ito. Humingi ng bagong link sa Yoman Asia.',e_REVOKED:'Kinansela na ang link na ito. Humingi ng bagong link sa Yoman Asia.',e_CASE_MISMATCH:'Hindi tugma ang link sa iyong kaso. Humingi ng bagong link sa Yoman Asia.',e_BAD_REQUEST:'May mali sa request. Paki-reload ang pahina at subukang muli.',e_TOO_LARGE:'Masyadong mahaba ang form. Paikliin ang mahahabang teksto at subukang muli.',e_JO_NOT_ACCEPTED:'Pakitanggap muna ang job offer bago i-submit.',e_MISSING_FIELD:'May kulang na kailangang field: ',e_BUSY:'Abala ang server. Maghintay sandali at pindutin muli ang I-submit.',e_REFUSE:'May maintenance ang sistema. Pakikontak ang Yoman Asia.',e_ERROR:'May nangyaring mali. Subukang muli mamaya o kontakin ang Yoman Asia.',e_NETWORK:'Hindi maabot ang server. Pakisuri ang internet at subukang muli.'},
+id:{banner:'Yoman Asia — Intake Pembantu. Periksa data sebelum kirim.',title:'Intake Pembantu + Terima Tawaran Kerja',jo_title:'1. Tawaran Kerja — harap konfirmasi',jo_employer:'Majikan',jo_salary:'Gaji',jo_hh:'Jumlah rumah tangga',jo_expb:'Bayi yang diharapkan',jo_duties:'Tugas (ringkas)',jo_check:'Saya menerima tawaran kerja dan gaji ini.',jo_btn:'Terima & lanjut',h_details:'2. Data Anda (untuk ID988A)',surname:'Nama keluarga (paspor)',given:'Nama depan (paspor)',sex:'Jenis kelamin',dob:'Tanggal lahir',pob:'Tempat lahir',nat:'Kewarganegaraan',pass:'No. paspor',pexp:'Kadaluarsa paspor',dom:'Alamat di negara asal (Brgy / Kota / Provinsi)',phone:'Telepon',email:'Email (opsional)',h_em:'3. Kontak darurat (hanya agen — bukan di ID988A)',em_name:'Nama',em_rel:'Hubungan',em_phone:'Telepon',h_exp:'4. Pengalaman kerja → ID988A Part 3',no_exp:'Tidak ada pengalaman pembantu rumah tangga sebelumnya',add_exp:'+ Tambah baris pengalaman',h_up:'5. Unggahan (opsional)',up_pass:'Foto paspor',up_ref:'Kontrak / referensi sebelumnya',up_note:'Hanya nama file dulu (unggah Drive segera).',submit:'Kirim',
+ x_emp:'Majikan',x_place:'Tempat / Negara',x_from:'Dari (mm/yy)',x_to:'Sampai (mm/yy)',x_rm:'Hapus',case:'Kasus',
+ s_loading:'Memuat…',s_ok:'Silakan baca dan terima tawaran kerja.',s_fill:'Isi data Anda, lalu kirim.',s_sending:'Mengirim… harap tunggu.',tick:'Centang kotak untuk menerima tawaran kerja terlebih dahulu.',
+ req:'Harap isi: ',done:'Terima kasih! Data Anda sudah terkirim (kasus {c}, versi {v}). Anda boleh menutup halaman ini.',staging:'MODE UJI (server staging)',
+ e_NO_TOKEN:'Tautan ini tidak lengkap. Gunakan tautan lengkap dari Yoman Asia.',e_NO_STAGING:'Server staging belum diatur.',
+ e_INVALID:'Tautan ini tidak valid. Minta tautan baru ke Yoman Asia.',e_REVOKED:'Tautan ini sudah dibatalkan. Minta tautan baru ke Yoman Asia.',e_CASE_MISMATCH:'Tautan ini tidak cocok dengan kasus Anda. Minta tautan baru ke Yoman Asia.',e_BAD_REQUEST:'Ada masalah dengan permintaan. Muat ulang halaman dan coba lagi.',e_TOO_LARGE:'Formulir terlalu panjang. Persingkat teks yang panjang lalu coba lagi.',e_JO_NOT_ACCEPTED:'Terima tawaran kerja sebelum mengirim.',e_MISSING_FIELD:'Ada kolom wajib yang kosong: ',e_BUSY:'Server sedang sibuk. Tunggu sebentar lalu tekan Kirim lagi.',e_REFUSE:'Sistem sedang dalam perbaikan. Hubungi Yoman Asia.',e_ERROR:'Terjadi kesalahan. Coba lagi nanti atau hubungi Yoman Asia.',e_NETWORK:'Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi.'}
+};
+var FIELD_KEY = { surname:'surname', givenNames:'given', dob:'dob' };
+var lang = 'en', jo = null, caseNo = '', joSnap = null, lastErr = null, done = false;
+function $(id) { return document.getElementById(id); }
+function T(k) { return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
+
+function errText(code) {
+  code = String(code || 'ERROR');
+  if (code.indexOf('MISSING_FIELD') === 0) { var f = code.split(':')[1] || ''; f = f.trim(); return T('e_MISSING_FIELD') + (FIELD_KEY[f] ? T(FIELD_KEY[f]) : f); }
+  var base = code.split(/[:\s]/)[0];
+  if (code.indexOf('Missing tab') === 0) base = 'REFUSE';
+  return I18N.en['e_' + base] ? T('e_' + base) : T('e_ERROR');
+}
+function render() {
+  document.documentElement.lang = lang === 'tl' ? 'tl' : lang;
+  document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = T(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === lang); });
+  if (caseNo) { $('caseLine').textContent = T('case') + ': ' + caseNo + (IS_STAGING ? ' · ' + T('staging') : ''); $('caseLine').classList.remove('hide'); }
+  if (lastErr) showMsg(lastErr.fatal ? 'err' : null);
+  if (done) showMsg('ok');
+}
+var curStatus = '';
+function status(k) { curStatus = k; $('status').textContent = k ? T(k) : ''; }
+function showMsg(kind) {
+  var m = $('msg');
+  if (done) { m.className = 'card ok'; m.textContent = T('done').replace('{c}', done.c).replace('{v}', done.v); return; }
+  if (lastErr && lastErr.fatal) { m.className = 'card err'; m.textContent = errText(lastErr.code); return; }
+  if (lastErr) { var e = $('formErr'); e.textContent = lastErr.text || errText(lastErr.code); e.classList.remove('hide'); }
+}
+function fatal(code) { lastErr = { code: code, fatal: true }; status(''); $('jo').classList.add('hide'); $('form').classList.add('hide'); showMsg(); }
+function formErr(code, text) { lastErr = { code: code, text: text, fatal: false }; showMsg(); $('formErr').scrollIntoView({ block: 'center' }); }
+function clearFormErr() { lastErr = null; $('formErr').classList.add('hide'); }
+
+document.querySelectorAll('.lang button').forEach(function (b) { b.onclick = function () { lang = b.dataset.lang; render(); if (curStatus) status(curStatus); }; });
+
+function expRow() {
+  var d = document.createElement('div'); d.className = 'member exp-row';
+  d.innerHTML = '<label data-i18n="x_emp"></label><input name="expEmployer" maxlength="200">' +
+    '<label data-i18n="x_place"></label><input name="expPlace" maxlength="200">' +
+    '<div class="row"><div><label data-i18n="x_from"></label><input name="expFrom" placeholder="05/23" maxlength="5"></div>' +
+    '<div><label data-i18n="x_to"></label><input name="expTo" placeholder="05/25" maxlength="5"></div></div>' +
+    '<div class="bar" style="position:static;box-shadow:none;padding:6px 0 0"><button type="button" class="b1 rm" data-i18n="x_rm"></button></div>';
+  d.querySelector('.rm').onclick = function () { d.remove(); };
+  $('expBox').appendChild(d); render();
+}
+$('addExp').onclick = expRow;
+$('noExp').onchange = function (e) { $('expBox').classList.toggle('hide', e.target.checked); $('addExp').classList.toggle('hide', e.target.checked); };
+
+function paintJo(data) {
+  jo = data.jo || {}; caseNo = String(data.caseNo || jo.caseNo || '');
+  $('joEmp').textContent = jo.employer || '—'; $('joSal').textContent = jo.salary || '—';
+  $('joHh').textContent = jo.householdSize == null ? '—' : jo.householdSize; $('joBabies').textContent = jo.expectingBabies == null ? '0' : jo.expectingBabies;
+  $('joDuties').textContent = jo.duties || '—';
+  $('jo').classList.remove('hide'); render(); status('s_ok');
+}
+function getJson(r) { return r.json(); }
+
+function load() {
+  render();
+  if (IS_STAGING && !EXEC) return fatal('NO_STAGING');
+  if (!TOKEN) return fatal('NO_TOKEN');
+  status('s_loading');
+  fetch(EXEC + '?action=load&t=' + encodeURIComponent(TOKEN), { method: 'GET', redirect: 'follow', credentials: 'omit', cache: 'no-store' })
+    .then(getJson)
+    .then(function (j) {
+      if (j && j.ok && j.data && j.data.ok !== false) paintJo(j.data);
+      else fatal((j && (j.error || (j.data && j.data.error))) || 'ERROR');
+    })
+    .catch(function () { fatal('NETWORK'); });
+}
+
+$('btnJo').onclick = function () {
+  if (!$('joAccept').checked) { alert(T('tick')); return; }
+  joSnap = { acceptedAt: new Date().toISOString(), employer: jo.employer, salary: jo.salary, householdSize: jo.householdSize, expectingBabies: jo.expectingBabies, duties: jo.duties, helperName: jo.helperName };
+  $('jo').classList.add('hide'); $('form').classList.remove('hide'); status('s_fill'); window.scrollTo(0, 0);
+};
+
+function fileName(input) { var f = input.files && input.files[0]; return f ? String(f.name).slice(0, 200) : ''; }
+function buildBody() {
+  var f = $('form'), g = function (n) { return String(f.elements[n].value || '').trim(); };
+  var noExp = $('noExp').checked, experience = [];
+  if (!noExp) document.querySelectorAll('#expBox .exp-row').forEach(function (r) {
+    var emp = r.querySelector('[name=expEmployer]').value.trim(); if (!emp) return;
+    experience.push({ employer: emp, place: r.querySelector('[name=expPlace]').value.trim(), from: r.querySelector('[name=expFrom]').value.trim(), to: r.querySelector('[name=expTo]').value.trim() });
+  });
+  var uploads = { passport: fileName(f.elements.passportFile), contract: fileName(f.elements.contractFile) };
+  return { action: 'submit', t: TOKEN, joAccept: joSnap,
+    data: { caseNo: caseNo, lang: lang, helper: {
+      surname: g('surname'), givenNames: g('givenNames'), sex: g('sex'), dob: g('dob'), placeOfBirth: g('placeOfBirth'), nationality: g('nationality'),
+      passportNo: g('passportNo'), passportExpiry: g('passportExpiry'), domicileAddress: g('domicileAddress'), phone: g('phone'), email: g('email'),
+      emergencyName: g('emergencyName'), emergencyRelationship: g('emergencyRelationship'), emergencyPhone: g('emergencyPhone'),
+      noExperience: noExp, experience: experience, uploads: uploads } },
+    uploads: uploads };
+}
+
+var sending = false;
+$('form').onsubmit = function (ev) {
+  ev.preventDefault(); if (sending || done) return; clearFormErr();
+  if (!joSnap) return formErr('JO_NOT_ACCEPTED');
+  var miss = ['surname', 'givenNames', 'dob'].filter(function (n) { return !String($('form').elements[n].value || '').trim(); });
+  if (miss.length) return formErr('MISSING_FIELD', T('req') + miss.map(function (n) { return T(FIELD_KEY[n]); }).join(', '));
+  var body = JSON.stringify(buildBody());
+  if (new TextEncoder().encode(body).length > MAX_BODY) return formErr('TOO_LARGE');
+  sending = true; $('btnSubmit').disabled = true; status('s_sending');
+  fetch(EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body, redirect: 'follow', credentials: 'omit' })
+    .then(getJson)
+    .then(function (j) {
+      sending = false;
+      if (j && j.ok && j.data && j.data.ok !== false) {
+        done = { c: j.data.caseNo || caseNo, v: j.data.version == null ? '?' : j.data.version };
+        $('form').reset(); $('form').classList.add('hide'); status(''); showMsg(); window.scrollTo(0, 0);
+        return;
+      }
+      var code = (j && (j.error || (j.data && j.data.error))) || 'ERROR';
+      status('');
+      if (/^(INVALID|REVOKED|CASE_MISMATCH|REFUSE|Missing tab)/.test(code)) { fatal(code); return; }
+      $('btnSubmit').disabled = false; formErr(code);
+    })
+    .catch(function () { sending = false; $('btnSubmit').disabled = false; status(''); formErr('NETWORK'); });
+};
+
+expRow();
+load();
+})();
+</script>
+</body></html>
