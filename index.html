@@ -30,7 +30,7 @@ button{flex:1;padding:14px;border:0;border-radius:10px;font:inherit;font-weight:
 <main id="app"><div class="card" id="loading">Loading… 載入中…</div></main>
 <script>
 var EXEC = 'https://script.google.com/macros/s/AKfycbyziYjmrf1uyo-VpodhqNQrST3chUxMTsY3yGthdw4BAAL3qZxcNQ6zo4uQwA9R-Llu/exec'; // t62u static build: Intake V2 /exec (cookie-less)
-var STAGING_EXEC = ''; // t168u: fill in with the employer STAGING /exec URL when Yoman provides it
+var STAGING_EXEC = 'https://script.google.com/macros/s/AKfycbyhio4c0eqF23kiTppUjZsNmvGUs1MZgpf_v_ibMrayjFfs8EgQ7xla8GxseS5kNT2e/exec'; // t168u: fill in with the employer STAGING /exec URL when Yoman provides it
 var IS_STAGING = (new URLSearchParams(location.search).get('api') || new URLSearchParams(location.hash.slice(1)).get('api')) === 'staging';
 if (IS_STAGING) EXEC = STAGING_EXEC;
 var DOB_YEAR_ONLY_FIELD = 'dobYearOnly'; // t168u: flag sent next to dob – name pending Yoman confirmation
@@ -188,6 +188,7 @@ function collect() {
   syncMembers(); syncHelpers(); var n = count('hhCount', 15), A = S.lists.ACCOM, t = v('a_type');
   var d = { employer: {}, home: {}, householdCount: n, expectingBabies: Math.max(0, parseInt(v('expectingBabies'), 10) || 0), members: S.members.slice(0, n), accommodation: { type: t }, declaration: $('decl').checked };
   ['nameEn', 'nameZh', 'mobile', 'email', 'hkid', 'dob', 'nationality', 'marital', 'occupation', 'address', 'gender', 'relHelper'].forEach(function (k) { d.employer[k] = k === 'dob' ? dobVal('e_dob') : v('e_' + k); }); d.employer[DOB_YEAR_ONLY_FIELD] = yearOnly('e_dob');
+  S.members[0] = S.members[0] || {}; S.members[0].dob = d.employer.dob; S.members[0][DOB_YEAR_ONLY_FIELD] = d.employer[DOB_YEAR_ONLY_FIELD]; d.members[0] = S.members[0]; // members[0] = employer
   d.home = { housing: v('h_housing'), size: v('h_size'), bedrooms: v('h_bedrooms'), garden: radio('garden'), pets: radio('pets'), cars: radio('cars'), cctv: radio('cctv') };
   if (d.home.garden === 'Yes') d.home.gardenArea = v('h_gardenArea'); if (d.home.pets === 'Yes') { d.home.petSpecies = v('h_petSpecies'); d.home.petNumber = v('h_petNumber'); } if (d.home.cars === 'Yes') d.home.carCount = v('h_carCount');
   if (t === A[0]) d.accommodation.roomSize = v('a_roomSize'); if (t === A[1]) d.accommodation.shareWith = v('a_shareWith'); if (t === A[2]) d.accommodation.other = v('a_other');
