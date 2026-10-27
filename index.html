@@ -104,7 +104,7 @@ function render(res) {
     '<div id="a_shareBox" class="hide"><label for="a_shareWith">Shares room with / 與誰同房</label><select id="a_shareWith"></select></div>' +
     '<div id="a_otherBox" class="hide"><label for="a_other">Please describe / 請說明</label><textarea id="a_other" rows="2"></textarea></div></div>';
   if (p.hiringPurpose === 'Replacement') h += '<div class="card" id="replCard"><h2>被替換姐姐 / Current Helper Being Replaced</h2><p class="note">This is your CURRENT helper, not the newly selected helper.<br>此為現時受僱的姐姐，並非新選的姐姐。</p><div class="row">' +
-    inp('r_name', 'Name / 姓名', p.replacedHelper) + inp('r_hkid', 'HKID / 香港身份證號碼', '', 'autocomplete="off"') + inp('r_lwd', 'Last Working Day / 最後工作日', '', 'type="date"') + inp('r_term', 'Contract Termination Date / 合約終止日期', '', 'type="date"') + inp('r_visa', 'Current Visa Expiry (limit of stay) / 現時簽證到期日（逗留期限）', '', 'type="date"') + inp('r_depart', 'Planned Departure Date / 預計離港日期', '', 'type="date"') + '</div></div>';
+    inp('r_name', 'Name / 姓名', p.replacedHelper) + inp('r_hkid', 'HKID / 香港身份證號碼', '', 'autocomplete="off"') + inp('r_lwd', 'Expected termination date / 預計終止日期', '', 'type="date"') + inp('r_visa', 'Current Visa Expiry (limit of stay) / 現時簽證到期日（逗留期限） <small>approximate OK / 大約日期也可</small>', '', 'type="date"') + '</div></div>';
   if (p.hiringPurpose === 'Additional Hiring') h += '<div class="card" id="addCard"><h2>現有姐姐 / Existing Helpers</h2><label for="ehCount">How many helpers do you currently employ? / 現時聘用姐姐數目</label>' +
     '<input id="ehCount" type="number" min="1" max="6" inputmode="numeric" value="1"><div id="helpers"></div></div>';
   h += '<div class="card"><h2>文件提示及確認 / Documents & Declaration</h2><p class="note">Yoman staff may ask you for copies of your HKID, address proof and income proof. You may provide them later.<br>Yoman 職員或會向你索取身份證、地址證明及入息證明副本，可稍後提供。</p>' +
@@ -131,7 +131,7 @@ function applyDraft(d) {
   ['garden', 'pets', 'cars', 'cctv'].forEach(function (k) { if (h[k]) setRadio(k, h[k]); });
   S.members = (d.members || [{}]).map(function (m) { return m || {}; }); set('hhCount', d.householdCount || 1); set('expectingBabies', (d.expectingBabies != null ? d.expectingBabies : 0));
   var a = d.accommodation || {}; set('a_type', a.type); set('a_roomSize', a.roomSize); set('a_other', a.other); S.shareWith = a.shareWith;
-  if (d.replacement) { set('r_name', d.replacement.name); set('r_hkid', d.replacement.hkid); set('r_lwd', d.replacement.lastWorkingDay); set('r_term', d.replacement.termDate || ''); set('r_visa', d.replacement.visaExpiry || ''); set('r_depart', d.replacement.departDate || ''); }
+  if (d.replacement) { set('r_name', d.replacement.name); set('r_hkid', d.replacement.hkid); set('r_lwd', d.replacement.lastWorkingDay || d.replacement.termDate || ''); set('r_visa', d.replacement.visaExpiry || '');  }
   S.helpers = (d.existingHelpers || []).map(function (x) { return x || {}; }); if ($('ehCount') && d.existingCount) set('ehCount', d.existingCount);
   if ($('decl')) $('decl').checked = !!d.declaration;
 }
@@ -192,7 +192,7 @@ function collect() {
   d.home = { housing: v('h_housing'), size: v('h_size'), bedrooms: v('h_bedrooms'), garden: radio('garden'), pets: radio('pets'), cars: radio('cars'), cctv: radio('cctv') };
   if (d.home.garden === 'Yes') d.home.gardenArea = v('h_gardenArea'); if (d.home.pets === 'Yes') { d.home.petSpecies = v('h_petSpecies'); d.home.petNumber = v('h_petNumber'); } if (d.home.cars === 'Yes') d.home.carCount = v('h_carCount');
   if (t === A[0]) d.accommodation.roomSize = v('a_roomSize'); if (t === A[1]) d.accommodation.shareWith = v('a_shareWith'); if (t === A[2]) d.accommodation.other = v('a_other');
-  if (S.pre.hiringPurpose === 'Replacement') d.replacement = { name: v('r_name'), hkid: v('r_hkid'), lastWorkingDay: v('r_lwd'), termDate: v('r_term'), visaExpiry: v('r_visa'), departDate: v('r_depart') };
+  if (S.pre.hiringPurpose === 'Replacement') d.replacement = { name: v('r_name'), hkid: v('r_hkid'), lastWorkingDay: v('r_lwd'), termDate: v('r_lwd'), visaExpiry: v('r_visa') }; // t168u: merged date sent under both keys until Yoman confirms
   if (S.pre.hiringPurpose === 'Additional Hiring') { d.existingCount = count('ehCount', 6); d.existingHelpers = S.helpers.slice(0, d.existingCount); }
   d._allMembers = S.members; d._allHelpers = S.helpers; // keeps data hidden by a temporary count reduction
   return d;
@@ -205,13 +205,13 @@ function check() {
   ['garden', 'pets', 'cars', 'cctv'].forEach(function (k) { if (!d.home[k]) P({ garden: 'Garden / Rooftop 花園或天台', pets: 'Pet care 寵物', cars: 'Car washing 洗車', cctv: 'CCTV 閉路電視' }[k], 'radio:' + k); });
   d.members.slice(1).forEach(function (x, j) { var i = j + 1; if (!x.name) P('Member ' + (i + 1) + ' name / 成員 ' + (i + 1) + ' 姓名', 'm' + i + '_name'); if (!x.relationship) P('Member ' + (i + 1) + ' relationship / 成員 ' + (i + 1) + ' 關係', 'm' + i + '_rel'); if (!x.dob) P('Member ' + (i + 1) + ' date of birth / 成員 ' + (i + 1) + ' 出生日期' + (yearOnly('m' + i + '_dob') ? ' (year 1900–' + CUR_YEAR + ')' : ''), dobEl('m' + i + '_dob')); });
   if (!d.accommodation.type) P('Helper accommodation / 姐姐住宿安排', 'a_type'); else if (d.accommodation.type === S.lists.ACCOM[1] && !d.accommodation.shareWith) P('Shares room with / 與誰同房', 'a_shareWith');
-  if (d.replacement && !d.replacement.lastWorkingDay) P('Last working day / 最後工作日', 'r_lwd');
+  if (d.replacement && !d.replacement.name) P('Replaced helper name / 被替換姐姐姓名', 'r_name'); if (d.replacement && !d.replacement.lastWorkingDay) P('Expected termination date / 預計終止日期', 'r_lwd');
   (d.existingHelpers || []).forEach(function (x, i) { if (!x.name) P('Existing helper ' + (i + 1) + ' name / 現有姐姐 ' + (i + 1) + ' 姓名', 'x' + i + '_name'); });
   if (!d.declaration) P('Declaration / 聲明', 'decl');
   return m;
 }
 function reqIds() { // fields the page treats as required (for the red asterisk)
-  var ids = ['e_nameEn', 'e_mobile', 'e_hkid', 'h_housing', 'radio:garden', 'radio:pets', 'radio:cars', 'radio:cctv', 'a_type', 'a_shareWith', 'r_lwd', 'decl'], n = count('hhCount', 15), k = count('ehCount', 6);
+  var ids = ['e_nameEn', 'e_mobile', 'e_hkid', 'h_housing', 'radio:garden', 'radio:pets', 'radio:cars', 'radio:cctv', 'a_type', 'a_shareWith', 'r_name', 'r_lwd', 'decl'], n = count('hhCount', 15), k = count('ehCount', 6);
   for (var i = 1; i < n; i++) ids.push('m' + i + '_name', 'm' + i + '_rel', 'm' + i + '_dob'); if ($('helpers')) for (var j = 0; j < k; j++) ids.push('x' + j + '_name');
   return ids;
 }
