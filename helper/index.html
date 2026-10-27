@@ -163,6 +163,18 @@ function paintJo(data) {
   var fill = function (id, val) { var el = $(id); if (val && el && !String(el.value || '').trim()) el.value = val; }; // empty-only
   fill('f_surname', pick(['surname'])); fill('f_given', pick(['givenNames'])); fill('f_pob', pick(['placeOfBirth'])); fill('f_dom', pick(['homeAddress']));
   fill('f_pissue', toIso(pick(['passportIssueDate']))); fill('f_pexp', toIso(pick(['passportExpiryDate', 'passportExpiry']))); fill('f_pauth', pick(['issuingAuthority']));
+  var toMMYY = function (x) { x = String(x || '').trim(); var m;
+    if ((m = /^(\d{1,2})\/(\d{2})$/.exec(x))) return ('0' + m[1]).slice(-2) + '/' + m[2];
+    if ((m = /^(\d{1,2})[\/-](\d{4})$/.exec(x))) return ('0' + m[1]).slice(-2) + '/' + m[2].slice(2);
+    if ((m = /^\d{1,2}\/(\d{1,2})\/(\d{4})$/.exec(x))) return ('0' + m[1]).slice(-2) + '/' + m[2].slice(2);
+    if ((m = /^(\d{4})-(\d{1,2})(-\d{1,2})?$/.exec(x))) return ('0' + m[2]).slice(-2) + '/' + m[1].slice(2);
+    return x; };
+  var pe = { employer: pick(['prevEmployerName']), place: pick(['prevEmployerAddress']), from: toMMYY(pick(['prevEmploymentFrom'])), to: toMMYY(pick(['prevEmploymentTo'])) };
+  if (pe.employer || pe.place || pe.from || pe.to) {
+    var rows = document.querySelectorAll('#expBox .exp-row'), blank = function (r) { return [].every.call(r.querySelectorAll('input'), function (i) { return !i.value.trim(); }); };
+    if (!rows.length) { expRow(); rows = document.querySelectorAll('#expBox .exp-row'); }
+    if (rows.length === 1 && blank(rows[0])) { var r0 = rows[0]; r0.querySelector('[name=expEmployer]').value = pe.employer; r0.querySelector('[name=expPlace]').value = pe.place; r0.querySelector('[name=expFrom]').value = pe.from; r0.querySelector('[name=expTo]').value = pe.to; }
+  }
   var sx = pick(['sex']).toLowerCase(); if (/^(f|female)$/.test(sx)) $('f_sex').value = 'F'; else if (/^(m|male)$/.test(sx)) $('f_sex').value = 'M';
   var nat = String(PF.nationality || '').trim() || String(jo.nationality || '').trim() || String(HP.nationality || '').trim();
   if (nat) $('f_nat').value = /^indonesia(n)?$/i.test(nat) ? 'Indonesian' : (/^(filipino|philippines?|filipina)$/i.test(nat) ? 'Filipino' : nat);
