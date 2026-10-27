@@ -77,7 +77,7 @@ dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 12px;margin:0}dt{f
 'use strict';
 var PROD_EXEC = 'https://script.google.com/macros/s/AKfycbwtKJkSb1iDglSKefDJvpYlV_VopDAG0jxj-n646ZRqETdvWOvS8jCDPvCCthvVtQGF0w/exec';
 var STAGING_EXEC = ''; // TODO: fill in once Yoman sends the staging /exec URL
-var MAX_BODY = 60000; // bytes, per contract
+var MAX_BODY = 60000; // body string characters, per Yoman (must stay under)
 var P = new URLSearchParams(location.search), H = new URLSearchParams(location.hash.slice(1));
 var IS_STAGING = (P.get('api') || H.get('api')) === 'staging';
 var EXEC = IS_STAGING ? STAGING_EXEC : PROD_EXEC;
@@ -155,6 +155,8 @@ function paintJo(data) {
   $('joEmp').textContent = jo.employer || '—'; $('joSal').textContent = jo.salary || '—';
   $('joHh').textContent = jo.householdSize == null ? '—' : jo.householdSize; $('joBabies').textContent = jo.expectingBabies == null ? '0' : jo.expectingBabies;
   $('joDuties').textContent = jo.duties || '—';
+  var nat = String(jo.nationality || '').trim();
+  if (nat) $('f_nat').value = /^indonesia(n)?$/i.test(nat) ? 'Indonesian' : (/^(filipino|philippines?|filipina)$/i.test(nat) ? 'Filipino' : nat);
   $('jo').classList.remove('hide'); render(); status('s_ok');
 }
 function getJson(r) { return r.json(); }
@@ -189,7 +191,7 @@ function buildBody() {
   });
   var uploads = { passport: fileName(f.elements.passportFile), contract: fileName(f.elements.contractFile) };
   return { action: 'submit', t: TOKEN, joAccept: joSnap,
-    data: { caseNo: caseNo, lang: lang, helper: {
+    data: { caseNo: caseNo || '', lang: lang, helper: {
       surname: g('surname'), givenNames: g('givenNames'), sex: g('sex'), dob: g('dob'), placeOfBirth: g('placeOfBirth'), nationality: g('nationality'),
       passportNo: g('passportNo'), passportExpiry: g('passportExpiry'), domicileAddress: g('domicileAddress'), phone: g('phone'), email: g('email'),
       emergencyName: g('emergencyName'), emergencyRelationship: g('emergencyRelationship'), emergencyPhone: g('emergencyPhone'),
@@ -204,7 +206,7 @@ $('form').onsubmit = function (ev) {
   var miss = ['surname', 'givenNames', 'dob'].filter(function (n) { return !String($('form').elements[n].value || '').trim(); });
   if (miss.length) return formErr('MISSING_FIELD', T('req') + miss.map(function (n) { return T(FIELD_KEY[n]); }).join(', '));
   var body = JSON.stringify(buildBody());
-  if (new TextEncoder().encode(body).length > MAX_BODY) return formErr('TOO_LARGE');
+  if (body.length >= MAX_BODY) return formErr('TOO_LARGE');
   sending = true; $('btnSubmit').disabled = true; status('s_sending');
   fetch(EXEC, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body, redirect: 'follow', credentials: 'omit' })
     .then(getJson)
