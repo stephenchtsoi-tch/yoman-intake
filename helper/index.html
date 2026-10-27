@@ -157,9 +157,14 @@ function paintJo(data) {
   $('joEmp').textContent = jo.employer || '—'; $('joSal').textContent = jo.salary || '—';
   $('joHh').textContent = jo.householdSize == null ? '—' : jo.householdSize; $('joBabies').textContent = jo.expectingBabies == null ? '0' : jo.expectingBabies;
   $('joDuties').textContent = jo.duties || '—';
-  var src = data.helper || {}, pf = function (id, k) { var val = src[k] != null && src[k] !== '' ? src[k] : jo[k]; if (val != null && String(val).trim() && !$(id).value) $(id).value = String(val).trim(); };
-  pf('f_pissue', 'passportIssueDate'); pf('f_pauth', 'issuingAuthority'); // prefill only if empty
-  var nat = String(jo.nationality || '').trim();
+  var PF = data.prefill || {}, HP = data.helper || {};
+  var pick = function (keys) { var srcs = [PF, HP, jo]; for (var i = 0; i < srcs.length; i++) for (var j = 0; j < keys.length; j++) { var x = srcs[i][keys[j]]; if (x != null && String(x).trim()) return String(x).trim(); } return ''; };
+  var toIso = function (x) { var m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(x); if (m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2); return /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : ''; };
+  var fill = function (id, val) { var el = $(id); if (val && el && !String(el.value || '').trim()) el.value = val; }; // empty-only
+  fill('f_surname', pick(['surname'])); fill('f_given', pick(['givenNames'])); fill('f_pob', pick(['placeOfBirth']));
+  fill('f_pissue', toIso(pick(['passportIssueDate']))); fill('f_pexp', toIso(pick(['passportExpiryDate', 'passportExpiry']))); fill('f_pauth', pick(['issuingAuthority']));
+  var sx = pick(['sex']).toLowerCase(); if (/^(f|female)$/.test(sx)) $('f_sex').value = 'F'; else if (/^(m|male)$/.test(sx)) $('f_sex').value = 'M';
+  var nat = String(PF.nationality || '').trim() || String(jo.nationality || '').trim() || String(HP.nationality || '').trim();
   if (nat) $('f_nat').value = /^indonesia(n)?$/i.test(nat) ? 'Indonesian' : (/^(filipino|philippines?|filipina)$/i.test(nat) ? 'Filipino' : nat);
   $('jo').classList.remove('hide'); render(); status('s_ok');
 }
