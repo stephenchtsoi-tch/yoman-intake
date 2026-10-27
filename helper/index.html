@@ -76,7 +76,7 @@ dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 12px;margin:0}dt{f
 (function () {
 'use strict';
 var PROD_EXEC = 'https://script.google.com/macros/s/AKfycbwtKJkSb1iDglSKefDJvpYlV_VopDAG0jxj-n646ZRqETdvWOvS8jCDPvCCthvVtQGF0w/exec';
-var STAGING_EXEC = ''; // TODO: fill in once Yoman sends the staging /exec URL
+var STAGING_EXEC = 'https://script.google.com/macros/s/AKfycbyMx8WKKeb1BAL18KeQIqjjIYBxC93tULy8hBGJ2ofwogVrc8ONtElokTapbBSKhoxv/exec'; // staging Unified Intake (t167u)
 var MAX_BODY = 60000; // body string characters, per Yoman (must stay under)
 var P = new URLSearchParams(location.search), H = new URLSearchParams(location.hash.slice(1));
 var IS_STAGING = (P.get('api') || H.get('api')) === 'staging';
@@ -104,7 +104,7 @@ id:{banner:'Yoman Asia — Intake Pembantu. Periksa data sebelum kirim.',title:'
  e_INVALID:'Tautan ini tidak valid. Minta tautan baru ke Yoman Asia.',e_REVOKED:'Tautan ini sudah dibatalkan. Minta tautan baru ke Yoman Asia.',e_CASE_MISMATCH:'Tautan ini tidak cocok dengan kasus Anda. Minta tautan baru ke Yoman Asia.',e_BAD_REQUEST:'Ada masalah dengan permintaan. Muat ulang halaman dan coba lagi.',e_TOO_LARGE:'Formulir terlalu panjang. Persingkat teks yang panjang lalu coba lagi.',e_JO_NOT_ACCEPTED:'Terima tawaran kerja sebelum mengirim.',e_MISSING_FIELD:'Ada kolom wajib yang kosong: ',e_BUSY:'Server sedang sibuk. Tunggu sebentar lalu tekan Kirim lagi.',e_REFUSE:'Sistem sedang dalam perbaikan. Hubungi Yoman Asia.',e_ERROR:'Terjadi kesalahan. Coba lagi nanti atau hubungi Yoman Asia.',e_NETWORK:'Tidak dapat terhubung ke server. Periksa koneksi internet lalu coba lagi.'}
 };
 var FIELD_KEY = { surname:'surname', givenNames:'given', dob:'dob' };
-var lang = 'en', jo = null, caseNo = '', joSnap = null, lastErr = null, done = false;
+var SRV_STAGING = false, lang = 'en', jo = null, caseNo = '', joSnap = null, lastErr = null, done = false;
 function $(id) { return document.getElementById(id); }
 function T(k) { return (I18N[lang] && I18N[lang][k]) || I18N.en[k] || k; }
 
@@ -119,7 +119,7 @@ function render() {
   document.documentElement.lang = lang === 'tl' ? 'tl' : lang;
   document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = T(el.getAttribute('data-i18n')); });
   document.querySelectorAll('.lang button').forEach(function (b) { b.classList.toggle('on', b.dataset.lang === lang); });
-  if (caseNo) { $('caseLine').textContent = T('case') + ': ' + caseNo + (IS_STAGING ? ' · ' + T('staging') : ''); $('caseLine').classList.remove('hide'); }
+  if (caseNo) { $('caseLine').textContent = T('case') + ': ' + caseNo + ((IS_STAGING || SRV_STAGING) ? ' · ' + T('staging') : ''); $('caseLine').classList.remove('hide'); }
   if (lastErr) showMsg(lastErr.fatal ? 'err' : null);
   if (done) showMsg('ok');
 }
@@ -151,7 +151,7 @@ $('addExp').onclick = expRow;
 $('noExp').onchange = function (e) { $('expBox').classList.toggle('hide', e.target.checked); $('addExp').classList.toggle('hide', e.target.checked); };
 
 function paintJo(data) {
-  jo = data.jo || {}; caseNo = String(data.caseNo || jo.caseNo || '');
+  jo = data.jo || {}; SRV_STAGING = data.staging === true; caseNo = String(data.caseNo || jo.caseNo || '');
   $('joEmp').textContent = jo.employer || '—'; $('joSal').textContent = jo.salary || '—';
   $('joHh').textContent = jo.householdSize == null ? '—' : jo.householdSize; $('joBabies').textContent = jo.expectingBabies == null ? '0' : jo.expectingBabies;
   $('joDuties').textContent = jo.duties || '—';
