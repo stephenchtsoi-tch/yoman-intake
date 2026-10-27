@@ -67,7 +67,7 @@ function render(res) {
     inp('e_mobile', 'Mobile / 手提電話', e.mobile, 'inputmode="tel"') + inp('e_email', 'Email / 電郵', e.email, 'type="email"') +
     inp('e_hkid', 'HKID / 香港身份證號碼', e.hkid, 'placeholder="A123456(7)" autocomplete="off"') + inp('e_dob', 'Date of Birth / 出生日期', e.dob, 'type="date"') +
     inp('e_nationality', 'Nationality / 國籍', e.nationality) + '<div><label for="e_marital">Marital Status / 婚姻狀況</label><select id="e_marital">' + opts(L.MARITAL, e.marital) + '</select></div>' +
-    inp('e_occupation', 'Occupation / 職業', e.occupation) + '</div><label for="e_address">Residential Address (English) / 住宅地址（英文）</label><textarea id="e_address" rows="2">' + esc(e.address) + '</textarea>' +
+    inp('e_occupation', 'Occupation / 職業', e.occupation) + '<div><label for="e_gender">Gender / 性別</label><select id="e_gender">' + opts(['Male / 男', 'Female / 女'], e.gender) + '</select></div>' + '<div><label for="e_relHelper">Relationship with the helper (if any) / 與外傭的關係（如有）</label><select id="e_relHelper">' + opts(['None / 沒有', 'Relative / 親屬', 'Other / 其他'], e.relHelper || 'None / 沒有') + '</select></div>' + '</div><label for="e_address">Residential Address (English) / 住宅地址（英文）</label><textarea id="e_address" rows="2">' + esc(e.address) + '</textarea>' +
     (e.addressZh ? '<small>中文地址（紀錄）: ' + esc(e.addressZh) + '</small>' : '') + '</div>';
   h += '<div class="card"><h2>住所資料 / Home Information</h2><div class="row"><div><label for="h_housing">Housing Type / 房屋類型</label><select id="h_housing">' + opts(L.HOUSING, p.home.housing) + '</select></div>' +
     inp('h_size', 'Flat Size (sq.ft.) / 單位面積（平方呎）', p.home.size, 'inputmode="numeric"') + inp('h_bedrooms', 'No. of Bedrooms / 房間數目', p.home.bedrooms, 'inputmode="numeric"') + '</div>' +
@@ -76,13 +76,15 @@ function render(res) {
     yn('cars', 'Car Washing Required? / 是否需要洗車？') + '<div id="carBox" class="hide">' + inp('h_carCount', 'No. of Cars / 車輛數目', '', 'inputmode="numeric"') + '</div>' +
     yn('cctv', 'CCTV Installed? / 住所是否設有閉路電視？') + '</div>';
   h += '<div class="card"><h2>家庭成員 / Household Members</h2><label for="hhCount">Total number of people living at this address, including you / 居住於此地址的總人數（包括你本人）</label>' +
-    '<input id="hhCount" type="number" min="1" max="15" inputmode="numeric" value="1"><div id="members"></div></div>';
+    '<input id="hhCount" type="number" min="1" max="15" inputmode="numeric" value="1"><div id="members"></div>' +
+    '<label for="expectingBabies" style="margin-top:12px">Expecting babies / 預期嬰兒數目 <small>(0 if none — for ID407 Schedule only; not listed on ID988B / 如無填 0；僅用於 ID407，不列入 988B 家庭成員)</small></label>' +
+    '<input id="expectingBabies" type="number" min="0" max="10" inputmode="numeric" value="0"></div>';
   h += '<div class="card"><h2>姐姐住宿安排 / Helper Accommodation</h2><label for="a_type">Accommodation / 住宿安排</label><select id="a_type">' + opts(L.ACCOM, '') + '</select>' +
     '<div id="a_roomBox" class="hide">' + inp('a_roomSize', 'Approximate room size (sq.ft.) / 房間大約面積（平方呎）', '', 'inputmode="numeric"') + '</div>' +
     '<div id="a_shareBox" class="hide"><label for="a_shareWith">Shares room with / 與誰同房</label><select id="a_shareWith"></select></div>' +
     '<div id="a_otherBox" class="hide"><label for="a_other">Please describe / 請說明</label><textarea id="a_other" rows="2"></textarea></div></div>';
   if (p.hiringPurpose === 'Replacement') h += '<div class="card" id="replCard"><h2>被替換姐姐 / Current Helper Being Replaced</h2><p class="note">This is your CURRENT helper, not the newly selected helper.<br>此為現時受僱的姐姐，並非新選的姐姐。</p><div class="row">' +
-    inp('r_name', 'Name / 姓名', p.replacedHelper) + inp('r_hkid', 'HKID / 香港身份證號碼', '', 'autocomplete="off"') + inp('r_lwd', 'Last Working Day / 最後工作日', '', 'type="date"') + '</div></div>';
+    inp('r_name', 'Name / 姓名', p.replacedHelper) + inp('r_hkid', 'HKID / 香港身份證號碼', '', 'autocomplete="off"') + inp('r_lwd', 'Last Working Day / 最後工作日', '', 'type="date"') + inp('r_term', 'Contract Termination Date / 合約終止日期', '', 'type="date"') + inp('r_visa', 'Current Visa Expiry (limit of stay) / 現時簽證到期日（逗留期限）', '', 'type="date"') + inp('r_depart', 'Planned Departure Date / 預計離港日期', '', 'type="date"') + '</div></div>';
   if (p.hiringPurpose === 'Additional Hiring') h += '<div class="card" id="addCard"><h2>現有姐姐 / Existing Helpers</h2><label for="ehCount">How many helpers do you currently employ? / 現時聘用姐姐數目</label>' +
     '<input id="ehCount" type="number" min="1" max="6" inputmode="numeric" value="1"><div id="helpers"></div></div>';
   h += '<div class="card"><h2>文件提示及確認 / Documents & Declaration</h2><p class="note">Yoman staff may ask you for copies of your HKID, address proof and income proof. You may provide them later.<br>Yoman 職員或會向你索取身份證、地址證明及入息證明副本，可稍後提供。</p>' +
@@ -101,12 +103,12 @@ function render(res) {
 }
 function applyDraft(d) {
   var e = d.employer || {}, set = function (id, val) { if ($(id) && val != null) $(id).value = val; };
-  ['nameEn', 'nameZh', 'mobile', 'email', 'hkid', 'dob', 'nationality', 'marital', 'occupation', 'address'].forEach(function (k) { set('e_' + k, e[k]); });
+  ['nameEn', 'nameZh', 'mobile', 'email', 'hkid', 'dob', 'nationality', 'marital', 'occupation', 'address', 'gender', 'relHelper'].forEach(function (k) { if (e[k] !== undefined) set('e_' + k, e[k]); });
   var h = d.home || {}; ['housing', 'size', 'bedrooms', 'gardenArea', 'petSpecies', 'petNumber', 'carCount'].forEach(function (k) { set('h_' + k, h[k]); });
   ['garden', 'pets', 'cars', 'cctv'].forEach(function (k) { if (h[k]) setRadio(k, h[k]); });
-  S.members = (d.members || [{}]).map(function (m) { return m || {}; }); set('hhCount', d.householdCount || 1);
+  S.members = (d.members || [{}]).map(function (m) { return m || {}; }); set('hhCount', d.householdCount || 1); set('expectingBabies', (d.expectingBabies != null ? d.expectingBabies : 0));
   var a = d.accommodation || {}; set('a_type', a.type); set('a_roomSize', a.roomSize); set('a_other', a.other); S.shareWith = a.shareWith;
-  if (d.replacement) { set('r_name', d.replacement.name); set('r_hkid', d.replacement.hkid); set('r_lwd', d.replacement.lastWorkingDay); }
+  if (d.replacement) { set('r_name', d.replacement.name); set('r_hkid', d.replacement.hkid); set('r_lwd', d.replacement.lastWorkingDay); set('r_term', d.replacement.termDate || ''); set('r_visa', d.replacement.visaExpiry || ''); set('r_depart', d.replacement.departDate || ''); }
   S.helpers = (d.existingHelpers || []).map(function (x) { return x || {}; }); if ($('ehCount') && d.existingCount) set('ehCount', d.existingCount);
   if ($('decl')) $('decl').checked = !!d.declaration;
 }
@@ -124,7 +126,7 @@ function renderMembers() {
     var m = S.members[i] || {};
     h += '<div class="member" data-i="' + i + '"><h3>Member ' + (i + 1) + ' / 家庭成員 ' + (i + 1) + '</h3><div class="row">' + inp('m' + i + '_name', 'Full Name / 姓名', m.name) +
       '<div><label for="m' + i + '_rel">Relationship to Employer / 與僱主關係</label><select id="m' + i + '_rel">' + opts(L.RELATIONSHIPS, m.relationship) + '</select></div>' +
-      inp('m' + i + '_dob', 'Date of Birth / 出生日期', m.dob, 'type="date"') + inp('m' + i + '_hkid', 'HKID (if applicable) / 香港身份證號碼（如適用）', m.hkid, 'autocomplete="off"') + '</div></div>';
+      inp('m' + i + '_dob', 'Date of Birth (required) / 出生日期（必填）', m.dob, 'type="date"') + inp('m' + i + '_hkid', 'HKID (if applicable) / 香港身份證號碼（如適用）', m.hkid, 'autocomplete="off"') + '</div></div>';
   }
   $('members').innerHTML = h; updateM0(); renderShare();
 }
@@ -134,12 +136,12 @@ function renderShare() {
   for (var i = 1; i <= n; i++) { var nm = i === 1 ? (v('e_nameEn') || 'Employer') + ' (Employer / 僱主)' : (v('m' + (i - 1) + '_name') || 'Member ' + i + ' / 成員 ' + i); h += '<option value="' + i + '"' + (String(i) === String(cur) ? ' selected' : '') + '>' + i + '. ' + esc(nm) + '</option>'; }
   sel.innerHTML = h; S.shareWith = sel.value;
 }
-function syncHelpers() { document.querySelectorAll('#helpers .member').forEach(function (c) { var i = +c.getAttribute('data-i'); S.helpers[i] = { name: v('x' + i + '_name'), hkid: v('x' + i + '_hkid'), expiry: v('x' + i + '_exp'), status: v('x' + i + '_st') }; }); }
+function syncHelpers() { document.querySelectorAll('#helpers .member').forEach(function (c) { var i = +c.getAttribute('data-i'); S.helpers[i] = { name: v('x' + i + '_name'), hkid: v('x' + i + '_hkid'), expiry: v('x' + i + '_exp'), permittedUntil: v('x' + i + '_stay'), status: v('x' + i + '_st') }; }); }
 function renderHelpers() {
   if (!$('helpers')) return; syncHelpers(); var n = count('ehCount', 6), h = '';
   for (var i = 0; i < n; i++) { var x = S.helpers[i] || {};
     h += '<div class="member" data-i="' + i + '"><h3>Existing Helper ' + (i + 1) + ' / 現有姐姐 ' + (i + 1) + '</h3><div class="row">' + inp('x' + i + '_name', 'Name / 姓名', x.name) + inp('x' + i + '_hkid', 'HKID / 香港身份證號碼', x.hkid, 'autocomplete="off"') +
-      inp('x' + i + '_exp', 'Contract Expiry Date / 合約到期日', x.expiry, 'type="date"') + '<div><label for="x' + i + '_st">Contract Status / 合約狀況</label><select id="x' + i + '_st">' + opts(S.lists.HELPER_STATUS, x.status) + '</select></div></div></div>'; }
+      inp('x' + i + '_exp', 'Contract Expiry Date / 合約到期日', x.expiry, 'type="date"') + inp('x' + i + '_stay', 'Permitted to stay until / 獲准逗留至', x.permittedUntil, 'type="date"') + '<div><label for="x' + i + '_st">Contract Status / 合約狀況</label><select id="x' + i + '_st">' + opts(S.lists.HELPER_STATUS, x.status) + '</select></div></div></div>'; }
   $('helpers').innerHTML = h;
 }
 function toggles() {
@@ -159,12 +161,12 @@ function wire() {
 }
 function collect() {
   syncMembers(); syncHelpers(); var n = count('hhCount', 15), A = S.lists.ACCOM, t = v('a_type');
-  var d = { employer: {}, home: {}, householdCount: n, members: S.members.slice(0, n), accommodation: { type: t }, declaration: $('decl').checked };
-  ['nameEn', 'nameZh', 'mobile', 'email', 'hkid', 'dob', 'nationality', 'marital', 'occupation', 'address'].forEach(function (k) { d.employer[k] = v('e_' + k); });
+  var d = { employer: {}, home: {}, householdCount: n, expectingBabies: Math.max(0, parseInt(v('expectingBabies'), 10) || 0), members: S.members.slice(0, n), accommodation: { type: t }, declaration: $('decl').checked };
+  ['nameEn', 'nameZh', 'mobile', 'email', 'hkid', 'dob', 'nationality', 'marital', 'occupation', 'address', 'gender', 'relHelper'].forEach(function (k) { d.employer[k] = v('e_' + k); });
   d.home = { housing: v('h_housing'), size: v('h_size'), bedrooms: v('h_bedrooms'), garden: radio('garden'), pets: radio('pets'), cars: radio('cars'), cctv: radio('cctv') };
   if (d.home.garden === 'Yes') d.home.gardenArea = v('h_gardenArea'); if (d.home.pets === 'Yes') { d.home.petSpecies = v('h_petSpecies'); d.home.petNumber = v('h_petNumber'); } if (d.home.cars === 'Yes') d.home.carCount = v('h_carCount');
   if (t === A[0]) d.accommodation.roomSize = v('a_roomSize'); if (t === A[1]) d.accommodation.shareWith = v('a_shareWith'); if (t === A[2]) d.accommodation.other = v('a_other');
-  if (S.pre.hiringPurpose === 'Replacement') d.replacement = { name: v('r_name'), hkid: v('r_hkid'), lastWorkingDay: v('r_lwd') };
+  if (S.pre.hiringPurpose === 'Replacement') d.replacement = { name: v('r_name'), hkid: v('r_hkid'), lastWorkingDay: v('r_lwd'), termDate: v('r_term'), visaExpiry: v('r_visa'), departDate: v('r_depart') };
   if (S.pre.hiringPurpose === 'Additional Hiring') { d.existingCount = count('ehCount', 6); d.existingHelpers = S.helpers.slice(0, d.existingCount); }
   d._allMembers = S.members; d._allHelpers = S.helpers; // keeps data hidden by a temporary count reduction
   return d;
@@ -174,7 +176,7 @@ function check() {
   if (!d.employer.nameEn) m.push('Employer name / 僱主姓名'); if (!d.employer.mobile) m.push('Mobile / 手提電話'); if (!d.employer.hkid) m.push('Employer HKID / 僱主身份證');
   if (!d.home.housing) m.push('Housing type / 房屋類型');
   ['garden', 'pets', 'cars', 'cctv'].forEach(function (k) { if (!d.home[k]) m.push({ garden: 'Garden / Rooftop 花園或天台', pets: 'Pet care 寵物', cars: 'Car washing 洗車', cctv: 'CCTV 閉路電視' }[k]); });
-  d.members.slice(1).forEach(function (x, i) { if (!x.name || !x.relationship) m.push('Member ' + (i + 2) + ' name & relationship / 成員 ' + (i + 2) + ' 姓名及關係'); });
+  d.members.slice(1).forEach(function (x, i) { if (!x.name || !x.relationship) m.push('Member ' + (i + 2) + ' name & relationship / 成員 ' + (i + 2) + ' 姓名及關係'); if (!x.dob) m.push('Member ' + (i + 2) + ' date of birth / 成員 ' + (i + 2) + ' 出生日期'); });
   if (!d.accommodation.type) m.push('Helper accommodation / 姐姐住宿安排'); else if (d.accommodation.type === S.lists.ACCOM[1] && !d.accommodation.shareWith) m.push('Shares room with / 與誰同房');
   if (d.replacement && !d.replacement.lastWorkingDay) m.push('Last working day / 最後工作日');
   (d.existingHelpers || []).forEach(function (x, i) { if (!x.name) m.push('Existing helper ' + (i + 1) + ' name / 現有姐姐 ' + (i + 1) + ' 姓名'); });
