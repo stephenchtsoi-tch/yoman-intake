@@ -162,7 +162,7 @@ function paintJo(data) {
   var pick = function (keys) { var srcs = [PF, HP, jo]; for (var i = 0; i < srcs.length; i++) for (var j = 0; j < keys.length; j++) { var x = srcs[i][keys[j]]; if (x != null && String(x).trim()) return String(x).trim(); } return ''; };
   var toIso = function (x) { var m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(x); if (m) return m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2); return /^\d{4}-\d{2}-\d{2}$/.test(x) ? x : ''; };
   var fill = function (id, val) { var el = $(id); if (val && el && !String(el.value || '').trim()) el.value = val; }; // empty-only
-  fill('f_surname', pick(['surname'])); fill('f_given', pick(['givenNames'])); fill('f_pob', pick(['placeOfBirth'])); fill('f_dom', pick(['homeAddress'])); fill('f_dob', toIso(String(PF.dateOfBirth || '').trim())); // prefill.dateOfBirth DD/MM/YYYY -> YYYY-MM-DD (empty-only; page has no drafts)
+  fill('f_surname', pick(['surname'])); fill('f_given', pick(['givenNames'])); fill('f_pob', pick(['placeOfBirth'])); fill('f_dom', pick(['homeAddress'])); fill('f_dob', toIso(pick(['dateOfBirth', 'dob']))); fill('f_pass', pick(['passportNo']).toUpperCase()); // t207u (empty-only; page has no drafts)
   fill('f_pissue', toIso(pick(['passportIssueDate']))); fill('f_pexp', toIso(pick(['passportExpiryDate', 'passportExpiry']))); fill('f_pauth', pick(['issuingAuthority']));
   var toMMYY = function (x) { x = String(x || '').trim(); var m;
     if ((m = /^(\d{1,2})\/(\d{2})$/.exec(x))) return ('0' + m[1]).slice(-2) + '/' + m[2];
@@ -176,9 +176,10 @@ function paintJo(data) {
     if (!rows.length) { expRow(); rows = document.querySelectorAll('#expBox .exp-row'); }
     if (rows.length === 1 && blank(rows[0])) { var r0 = rows[0]; r0.querySelector('[name=expEmployer]').value = pe.employer; r0.querySelector('[name=expPlace]').value = pe.place; r0.querySelector('[name=expFrom]').value = pe.from; r0.querySelector('[name=expTo]').value = pe.to; }
   }
-  var sx = pick(['sex']).toLowerCase(); if (/^(f|female)$/.test(sx)) $('f_sex').value = 'F'; else if (/^(m|male)$/.test(sx)) $('f_sex').value = 'M';
+  var untouched = function (el, def) { return !el.dataset.touched && (!String(el.value || '').trim() || el.value === def); };
+  var sx = pick(['sex']).toLowerCase(); if (untouched($('f_sex'), 'F')) { if (/^(f|female)$/.test(sx)) $('f_sex').value = 'F'; else if (/^(m|male)$/.test(sx)) $('f_sex').value = 'M'; }
   var nat = String(PF.nationality || '').trim() || String(jo.nationality || '').trim() || String(HP.nationality || '').trim();
-  if (nat) $('f_nat').value = /^indonesia(n)?$/i.test(nat) ? 'Indonesian' : (/^(filipino|philippines?|filipina)$/i.test(nat) ? 'Filipino' : nat);
+  if (nat && untouched($('f_nat'), 'Filipino')) $('f_nat').value = /^indonesia(n)?$/i.test(nat) ? 'Indonesian' : (/^(filipino|philippines?|filipina)$/i.test(nat) ? 'Filipino' : nat);
   $('jo').classList.remove('hide'); render(); status('s_ok');
 }
 function getJson(r) { return r.json(); }
@@ -247,6 +248,7 @@ $('form').onsubmit = function (ev) {
     .catch(function () { sending = false; $('btnSubmit').disabled = false; status(''); formErr('NETWORK'); });
 };
 
+['input', 'change'].forEach(function (ev) { $('form').addEventListener(ev, function (e) { if (e.target && e.target.dataset) e.target.dataset.touched = '1'; }); });
 expRow();
 load();
 })();
